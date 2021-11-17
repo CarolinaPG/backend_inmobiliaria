@@ -1,4 +1,5 @@
 import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Email} from './email.model';
 import {Inmueble} from './inmueble.model';
 import {Solicitud} from './solicitud.model';
 
@@ -12,6 +13,8 @@ export class Estado extends Entity {
   })
   id: number;
 
+  @hasOne(() => Email, {keyTo: 'id_estado'})
+  email: Email;
   @hasOne(() => Inmueble, {keyTo: 'id_estado'})
   inmueble: Inmueble;
 

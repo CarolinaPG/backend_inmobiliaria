@@ -38,6 +38,11 @@ export class Inmueble extends Entity {
   @property({
     type: 'number',
   })
+  id_tipoOferta?: number;
+
+  @property({
+    type: 'number',
+  })
   id_tipoInmueble?: number;
 
   @property({
@@ -57,6 +62,7 @@ export class Inmueble extends Entity {
     type: 'string',
   })
   id_asesor?: string;
+
 
   constructor(data?: Partial<Inmueble>) {
     super(data);

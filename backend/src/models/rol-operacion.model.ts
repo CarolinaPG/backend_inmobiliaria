@@ -9,6 +9,15 @@ export class RolOperacion extends Entity {
   })
   id?: string;
 
+  @property({
+    type: 'string',
+  })
+  id_rol?: string;
+
+  @property({
+    type: 'number',
+  })
+  id_operacion?: number;
 
   constructor(data?: Partial<RolOperacion>) {
     super(data);

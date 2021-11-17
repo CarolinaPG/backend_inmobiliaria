@@ -26,6 +26,10 @@ export class Documento extends Entity {
   })
   linkDescarga?: string;
 
+  @property({
+    type: 'string',
+  })
+  id_solicitud?: string;
 
   constructor(data?: Partial<Documento>) {
     super(data);

@@ -1,4 +1,5 @@
 import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Documento} from './documento.model';
 import {Fecha} from './fecha.model';
 
 @model()
@@ -16,6 +17,9 @@ export class Solicitud extends Entity {
   })
   comentarios: string;
 
+  @hasMany(() => Documento, {keyTo: 'id_solicitud'})
+  documentos: Documento[];
+
   @property({
     type: 'number',
   })
@@ -23,6 +27,15 @@ export class Solicitud extends Entity {
 
   @hasMany(() => Fecha, {keyTo: 'id_solicitud'})
   fechas: Fecha[];
+
+  @property({
+    type: 'string',
+  })
+
+  @property({
+    type: 'string',
+  })
+  id_cliente?: string;
 
   @property({
     type: 'string',
