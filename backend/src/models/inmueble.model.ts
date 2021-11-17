@@ -1,5 +1,10 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {Solicitud} from './solicitud.model';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Estado} from './estado.model';
+import {Persona} from './persona.model';
+import {Ciudad} from './ciudad.model';
+import {TipoInmueble} from './tipo-inmueble.model';
+import {TipoOferta} from './tipo-oferta.model';
+import {Rol} from './rol.model';
 
 @model()
 export class Inmueble extends Entity {
@@ -31,38 +36,26 @@ export class Inmueble extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
-  videoYoutube: string;
+  videoYoutube?: string;
 
-  @property({
-    type: 'number',
-  })
-  id_tipoOferta?: number;
+  @belongsTo(() => Estado, {name: 'estInmueble'})
+  id_estado: number;
 
-  @property({
-    type: 'number',
-  })
-  id_tipoInmueble?: number;
+  @belongsTo(() => Persona, {name: 'asesor'})
+  id_asesor: string;
 
-  @property({
-    type: 'string',
-  })
-  id_ciudad?: string;
+  @belongsTo(() => Ciudad, {name: 'ciudad'})
+  id_ciudad: number;
 
-  @property({
-    type: 'number',
-  })
-  id_estado?: number;
+  @belongsTo(() => TipoInmueble, {name: 'tInmueble'})
+  id_tipoInmueble: number;
 
-  @hasMany(() => Solicitud, {keyTo: 'id_inmueble'})
-  solicitudes: Solicitud[];
+  @belongsTo(() => TipoOferta, {name: 'tOferta'})
+  id_tipoOferta: number;
 
-  @property({
-    type: 'string',
-  })
-  id_asesor?: string;
-
+  @belongsTo(() => Rol, {name: 'rolPersona'})
+  id_rol: number;
 
   constructor(data?: Partial<Inmueble>) {
     super(data);

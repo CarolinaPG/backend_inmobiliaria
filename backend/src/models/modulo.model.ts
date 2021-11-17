@@ -11,8 +11,14 @@ export class Modulo extends Entity {
   })
   id: number;
 
+  @property({
+    type: 'string',
+    required: true,
+  })
+  nombre: string;
+
   @hasMany(() => Operacion, {keyTo: 'id_modulo'})
-  moduloOperaciones: Operacion[];
+  modOperaciones: Operacion[];
 
   constructor(data?: Partial<Modulo>) {
     super(data);

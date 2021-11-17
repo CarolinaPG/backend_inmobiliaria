@@ -1,10 +1,9 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory, HasOneRepositoryFactory} from '@loopback/repository';
+import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Rol, RolRelations, Operacion, RolOperacion, Persona} from '../models';
-import {RolOperacionRepository} from './rol-operacion.repository';
+import {Rol, RolRelations, Operacion, RolOp} from '../models';
+import {RolOpRepository} from './rol-op.repository';
 import {OperacionRepository} from './operacion.repository';
-import {PersonaRepository} from './persona.repository';
 
 export class RolRepository extends DefaultCrudRepository<
   Rol,
@@ -13,19 +12,15 @@ export class RolRepository extends DefaultCrudRepository<
 > {
 
   public readonly operaciones: HasManyThroughRepositoryFactory<Operacion, typeof Operacion.prototype.id,
-          RolOperacion,
+          RolOp,
           typeof Rol.prototype.id
         >;
 
-  public readonly persona: HasOneRepositoryFactory<Persona, typeof Rol.prototype.id>;
-
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolOperacionRepository') protected rolOperacionRepositoryGetter: Getter<RolOperacionRepository>, @repository.getter('OperacionRepository') protected operacionRepositoryGetter: Getter<OperacionRepository>, @repository.getter('PersonaRepository') protected personaRepositoryGetter: Getter<PersonaRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolOpRepository') protected rolOpRepositoryGetter: Getter<RolOpRepository>, @repository.getter('OperacionRepository') protected operacionRepositoryGetter: Getter<OperacionRepository>,
   ) {
     super(Rol, dataSource);
-    this.persona = this.createHasOneRepositoryFactoryFor('persona', personaRepositoryGetter);
-    this.registerInclusionResolver('persona', this.persona.inclusionResolver);
-    this.operaciones = this.createHasManyThroughRepositoryFactoryFor('operaciones', operacionRepositoryGetter, rolOperacionRepositoryGetter,);
+    this.operaciones = this.createHasManyThroughRepositoryFactoryFor('operaciones', operacionRepositoryGetter, rolOpRepositoryGetter,);
     this.registerInclusionResolver('operaciones', this.operaciones.inclusionResolver);
   }
 }

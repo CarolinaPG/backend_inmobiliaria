@@ -1,8 +1,8 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
+import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Email, EmailRelations, Persona} from '../models';
-import {PersonaRepository} from './persona.repository';
+import {Email, EmailRelations, Estado} from '../models';
+import {EstadoRepository} from './estado.repository';
 
 export class EmailRepository extends DefaultCrudRepository<
   Email,
@@ -10,13 +10,13 @@ export class EmailRepository extends DefaultCrudRepository<
   EmailRelations
 > {
 
-  public readonly persona: HasOneRepositoryFactory<Persona, typeof Email.prototype.id>;
+  public readonly estEmail: BelongsToAccessor<Estado, typeof Email.prototype.id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('PersonaRepository') protected personaRepositoryGetter: Getter<PersonaRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('EstadoRepository') protected estadoRepositoryGetter: Getter<EstadoRepository>,
   ) {
     super(Email, dataSource);
-    this.persona = this.createHasOneRepositoryFactoryFor('persona', personaRepositoryGetter);
-    this.registerInclusionResolver('persona', this.persona.inclusionResolver);
+    this.estEmail = this.createBelongsToAccessorFor('estEmail', estadoRepositoryGetter,);
+    this.registerInclusionResolver('estEmail', this.estEmail.inclusionResolver);
   }
 }

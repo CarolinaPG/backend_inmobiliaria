@@ -17,7 +17,7 @@ import {
 } from '@loopback/rest';
 import {
 Rol,
-RolOperacion,
+RolOp,
 Operacion,
 } from '../models';
 import {RolRepository} from '../repositories';
@@ -30,7 +30,7 @@ export class RolOperacionController {
   @get('/rols/{id}/operacions', {
     responses: {
       '200': {
-        description: 'Array of Rol has many Operacion through RolOperacion',
+        description: 'Array of Rol has many Operacion through RolOp',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(Operacion)},
@@ -40,7 +40,7 @@ export class RolOperacionController {
     },
   })
   async find(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Operacion>,
   ): Promise<Operacion[]> {
     return this.rolRepository.operaciones(id).find(filter);
@@ -55,7 +55,7 @@ export class RolOperacionController {
     },
   })
   async create(
-    @param.path.string('id') id: typeof Rol.prototype.id,
+    @param.path.number('id') id: typeof Rol.prototype.id,
     @requestBody({
       content: {
         'application/json': {
@@ -79,7 +79,7 @@ export class RolOperacionController {
     },
   })
   async patch(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @requestBody({
       content: {
         'application/json': {
@@ -102,7 +102,7 @@ export class RolOperacionController {
     },
   })
   async delete(
-    @param.path.string('id') id: string,
+    @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Operacion)) where?: Where<Operacion>,
   ): Promise<Count> {
     return this.rolRepository.operaciones(id).delete(where);

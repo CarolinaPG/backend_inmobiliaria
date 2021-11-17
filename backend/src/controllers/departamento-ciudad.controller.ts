@@ -61,7 +61,7 @@ export class DepartamentoCiudadController {
           schema: getModelSchemaRef(Ciudad, {
             title: 'NewCiudadInDepartamento',
             exclude: ['id'],
-            optional: ['id_depa']
+            optional: ['id_departamento']
           }),
         },
       },

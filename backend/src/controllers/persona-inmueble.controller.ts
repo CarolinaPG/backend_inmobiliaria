@@ -5,7 +5,7 @@ import {
   repository,
   Where,
 } from '@loopback/repository';
-import {
+  import {
   del,
   get,
   getModelSchemaRef,
@@ -16,8 +16,9 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {
-  Persona,
-  Inmueble,
+Persona,
+Solicitud,
+Inmueble,
 } from '../models';
 import {PersonaRepository} from '../repositories';
 
@@ -26,29 +27,29 @@ export class PersonaInmuebleController {
     @repository(PersonaRepository) protected personaRepository: PersonaRepository,
   ) { }
 
-  @get('/personas/{id}/inmueble', {
+  @get('/personas/{id}/inmuebles', {
     responses: {
       '200': {
-        description: 'Persona has one Inmueble',
+        description: 'Array of Persona has many Inmueble through Solicitud',
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Inmueble),
+            schema: {type: 'array', items: getModelSchemaRef(Inmueble)},
           },
         },
       },
     },
   })
-  async get(
+  async find(
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Inmueble>,
-  ): Promise<Inmueble> {
-    return this.personaRepository.inmueble(id).get(filter);
+  ): Promise<Inmueble[]> {
+    return this.personaRepository.inmuebles(id).find(filter);
   }
 
-  @post('/personas/{id}/inmueble', {
+  @post('/personas/{id}/inmuebles', {
     responses: {
       '200': {
-        description: 'Persona model instance',
+        description: 'create a Inmueble model instance',
         content: {'application/json': {schema: getModelSchemaRef(Inmueble)}},
       },
     },
@@ -61,16 +62,15 @@ export class PersonaInmuebleController {
           schema: getModelSchemaRef(Inmueble, {
             title: 'NewInmuebleInPersona',
             exclude: ['id'],
-            optional: ['id_asesor']
           }),
         },
       },
     }) inmueble: Omit<Inmueble, 'id'>,
   ): Promise<Inmueble> {
-    return this.personaRepository.inmueble(id).create(inmueble);
+    return this.personaRepository.inmuebles(id).create(inmueble);
   }
 
-  @patch('/personas/{id}/inmueble', {
+  @patch('/personas/{id}/inmuebles', {
     responses: {
       '200': {
         description: 'Persona.Inmueble PATCH success count',
@@ -90,10 +90,10 @@ export class PersonaInmuebleController {
     inmueble: Partial<Inmueble>,
     @param.query.object('where', getWhereSchemaFor(Inmueble)) where?: Where<Inmueble>,
   ): Promise<Count> {
-    return this.personaRepository.inmueble(id).patch(inmueble, where);
+    return this.personaRepository.inmuebles(id).patch(inmueble, where);
   }
 
-  @del('/personas/{id}/inmueble', {
+  @del('/personas/{id}/inmuebles', {
     responses: {
       '200': {
         description: 'Persona.Inmueble DELETE success count',
@@ -105,6 +105,6 @@ export class PersonaInmuebleController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Inmueble)) where?: Where<Inmueble>,
   ): Promise<Count> {
-    return this.personaRepository.inmueble(id).delete(where);
+    return this.personaRepository.inmuebles(id).delete(where);
   }
 }

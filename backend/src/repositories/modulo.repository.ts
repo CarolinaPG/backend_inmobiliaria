@@ -10,13 +10,13 @@ export class ModuloRepository extends DefaultCrudRepository<
   ModuloRelations
 > {
 
-  public readonly moduloOperaciones: HasManyRepositoryFactory<Operacion, typeof Modulo.prototype.id>;
+  public readonly modOperaciones: HasManyRepositoryFactory<Operacion, typeof Modulo.prototype.id>;
 
   constructor(
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('OperacionRepository') protected operacionRepositoryGetter: Getter<OperacionRepository>,
   ) {
     super(Modulo, dataSource);
-    this.moduloOperaciones = this.createHasManyRepositoryFactoryFor('moduloOperaciones', operacionRepositoryGetter,);
-    this.registerInclusionResolver('moduloOperaciones', this.moduloOperaciones.inclusionResolver);
+    this.modOperaciones = this.createHasManyRepositoryFactoryFor('modOperaciones', operacionRepositoryGetter,);
+    this.registerInclusionResolver('modOperaciones', this.modOperaciones.inclusionResolver);
   }
 }

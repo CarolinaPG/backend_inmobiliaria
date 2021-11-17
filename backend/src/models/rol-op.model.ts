@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class RolOperacion extends Entity {
+export class RolOp extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -10,22 +10,22 @@ export class RolOperacion extends Entity {
   id?: string;
 
   @property({
-    type: 'string',
+    type: 'number',
   })
-  id_rol?: string;
+  id_rol?: number;
 
   @property({
     type: 'number',
   })
   id_operacion?: number;
 
-  constructor(data?: Partial<RolOperacion>) {
+  constructor(data?: Partial<RolOp>) {
     super(data);
   }
 }
 
-export interface RolOperacionRelations {
+export interface RolOpRelations {
   // describe navigational properties here
 }
 
-export type RolOperacionWithRelations = RolOperacion & RolOperacionRelations;
+export type RolOpWithRelations = RolOp & RolOpRelations;

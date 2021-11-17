@@ -1,12 +1,11 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
+import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory, BelongsToAccessor} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Persona, PersonaRelations, Solicitud} from '../models';
+import {Persona, PersonaRelations, Inmueble, Solicitud, Rol, Email} from '../models';
 import {SolicitudRepository} from './solicitud.repository';
-import {DefaultCrudRepository, repository, HasOneRepositoryFactory} from '@loopback/repository';
-import {MongodbDataSource} from '../datasources';
-import {Persona, PersonaRelations, Inmueble} from '../models';
 import {InmuebleRepository} from './inmueble.repository';
+import {RolRepository} from './rol.repository';
+import {EmailRepository} from './email.repository';
 
 export class PersonaRepository extends DefaultCrudRepository<
   Persona,
@@ -14,17 +13,24 @@ export class PersonaRepository extends DefaultCrudRepository<
   PersonaRelations
 > {
 
-  public readonly solicitudes: HasManyRepositoryFactory<Solicitud, typeof Persona.prototype.id>;
+  public readonly inmuebles: HasManyThroughRepositoryFactory<Inmueble, typeof Inmueble.prototype.id,
+          Solicitud,
+          typeof Persona.prototype.id
+        >;
 
-  public readonly inmueble: HasOneRepositoryFactory<Inmueble, typeof Persona.prototype.id>;
+  public readonly rolPersona: BelongsToAccessor<Rol, typeof Persona.prototype.id>;
+
+  public readonly emailPersona: BelongsToAccessor<Email, typeof Persona.prototype.id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('SolicitudRepository') protected solicitudRepositoryGetter: Getter<SolicitudRepository>, @repository.getter('InmuebleRepository') protected inmuebleRepositoryGetter: Getter<InmuebleRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('SolicitudRepository') protected solicitudRepositoryGetter: Getter<SolicitudRepository>, @repository.getter('InmuebleRepository') protected inmuebleRepositoryGetter: Getter<InmuebleRepository>, @repository.getter('RolRepository') protected rolRepositoryGetter: Getter<RolRepository>, @repository.getter('EmailRepository') protected emailRepositoryGetter: Getter<EmailRepository>,
   ) {
     super(Persona, dataSource);
-    this.solicitudes = this.createHasManyRepositoryFactoryFor('solicitudes', solicitudRepositoryGetter,);
-    this.registerInclusionResolver('solicitudes', this.solicitudes.inclusionResolver);
-    this.inmueble = this.createHasOneRepositoryFactoryFor('inmueble', inmuebleRepositoryGetter);
-    this.registerInclusionResolver('inmueble', this.inmueble.inclusionResolver);
+    this.emailPersona = this.createBelongsToAccessorFor('emailPersona', emailRepositoryGetter,);
+    this.registerInclusionResolver('emailPersona', this.emailPersona.inclusionResolver);
+    this.rolPersona = this.createBelongsToAccessorFor('rolPersona', rolRepositoryGetter,);
+    this.registerInclusionResolver('rolPersona', this.rolPersona.inclusionResolver);
+    this.inmuebles = this.createHasManyThroughRepositoryFactoryFor('inmuebles', inmuebleRepositoryGetter, solicitudRepositoryGetter,);
+    this.registerInclusionResolver('inmuebles', this.inmuebles.inclusionResolver);
   }
 }

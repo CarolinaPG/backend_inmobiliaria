@@ -42,7 +42,7 @@ export class ModuloOperacionController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Operacion>,
   ): Promise<Operacion[]> {
-    return this.moduloRepository.moduloOperaciones(id).find(filter);
+    return this.moduloRepository.modOperaciones(id).find(filter);
   }
 
   @post('/modulos/{id}/operacions', {
@@ -67,7 +67,7 @@ export class ModuloOperacionController {
       },
     }) operacion: Omit<Operacion, 'id'>,
   ): Promise<Operacion> {
-    return this.moduloRepository.moduloOperaciones(id).create(operacion);
+    return this.moduloRepository.modOperaciones(id).create(operacion);
   }
 
   @patch('/modulos/{id}/operacions', {
@@ -90,7 +90,7 @@ export class ModuloOperacionController {
     operacion: Partial<Operacion>,
     @param.query.object('where', getWhereSchemaFor(Operacion)) where?: Where<Operacion>,
   ): Promise<Count> {
-    return this.moduloRepository.moduloOperaciones(id).patch(operacion, where);
+    return this.moduloRepository.modOperaciones(id).patch(operacion, where);
   }
 
   @del('/modulos/{id}/operacions', {
@@ -105,6 +105,6 @@ export class ModuloOperacionController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Operacion)) where?: Where<Operacion>,
   ): Promise<Count> {
-    return this.moduloRepository.moduloOperaciones(id).delete(where);
+    return this.moduloRepository.modOperaciones(id).delete(where);
   }
 }
