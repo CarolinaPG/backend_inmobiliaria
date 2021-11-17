@@ -1,5 +1,7 @@
 import {Entity, model, property, hasOne} from '@loopback/repository';
 import {Email} from './email.model';
+import {Inmueble} from './inmueble.model';
+import {Solicitud} from './solicitud.model';
 
 @model()
 export class Estado extends Entity {
@@ -13,6 +15,11 @@ export class Estado extends Entity {
 
   @hasOne(() => Email, {keyTo: 'id_estado'})
   email: Email;
+  @hasOne(() => Inmueble, {keyTo: 'id_estado'})
+  inmueble: Inmueble;
+
+  @hasOne(() => Solicitud, {keyTo: 'id_estado'})
+  solicitud: Solicitud;
 
   constructor(data?: Partial<Estado>) {
     super(data);

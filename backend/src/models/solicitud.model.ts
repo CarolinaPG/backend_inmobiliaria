@@ -1,5 +1,6 @@
 import {Entity, model, property, hasMany} from '@loopback/repository';
 import {Documento} from './documento.model';
+import {Fecha} from './fecha.model';
 
 @model()
 export class Solicitud extends Entity {
@@ -20,9 +21,26 @@ export class Solicitud extends Entity {
   documentos: Documento[];
 
   @property({
+    type: 'number',
+  })
+  id_estado?: number;
+
+  @hasMany(() => Fecha, {keyTo: 'id_solicitud'})
+  fechas: Fecha[];
+
+  @property({
+    type: 'string',
+  })
+
+  @property({
     type: 'string',
   })
   id_cliente?: string;
+
+  @property({
+    type: 'string',
+  })
+  id_inmueble?: string;
 
   constructor(data?: Partial<Solicitud>) {
     super(data);
