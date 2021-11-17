@@ -16,6 +16,10 @@ export class Operacion extends Entity {
   })
   nombre: string;
 
+  @property({
+    type: 'number',
+  })
+  id_modulo?: number;
 
   constructor(data?: Partial<Operacion>) {
     super(data);

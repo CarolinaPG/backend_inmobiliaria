@@ -34,6 +34,10 @@ export class Inmueble extends Entity {
   })
   videoYoutube: string;
 
+  @property({
+    type: 'number',
+  })
+  id_tipoOferta?: number;
 
   constructor(data?: Partial<Inmueble>) {
     super(data);

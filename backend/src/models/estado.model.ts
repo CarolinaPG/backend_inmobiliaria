@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Email} from './email.model';
 
 @model()
 export class Estado extends Entity {
@@ -10,6 +11,8 @@ export class Estado extends Entity {
   })
   id: number;
 
+  @hasOne(() => Email, {keyTo: 'id_estado'})
+  email: Email;
 
   constructor(data?: Partial<Estado>) {
     super(data);
