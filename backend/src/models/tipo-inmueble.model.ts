@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Inmueble} from './inmueble.model';
 
 @model()
 export class TipoInmueble extends Entity {
@@ -15,6 +16,8 @@ export class TipoInmueble extends Entity {
   })
   nombre?: string;
 
+  @hasOne(() => Inmueble, {keyTo: 'id_tipoInmueble'})
+  inmueble: Inmueble;
 
   constructor(data?: Partial<TipoInmueble>) {
     super(data);

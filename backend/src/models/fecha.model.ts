@@ -15,6 +15,10 @@ export class Fecha extends Entity {
   })
   fecha: string;
 
+  @property({
+    type: 'string',
+  })
+  id_solicitud?: string;
 
   constructor(data?: Partial<Fecha>) {
     super(data);

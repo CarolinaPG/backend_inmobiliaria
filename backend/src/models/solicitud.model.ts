@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Fecha} from './fecha.model';
 
 @model()
 export class Solicitud extends Entity {
@@ -15,6 +16,18 @@ export class Solicitud extends Entity {
   })
   comentarios: string;
 
+  @property({
+    type: 'number',
+  })
+  id_estado?: number;
+
+  @hasMany(() => Fecha, {keyTo: 'id_solicitud'})
+  fechas: Fecha[];
+
+  @property({
+    type: 'string',
+  })
+  id_inmueble?: string;
 
   constructor(data?: Partial<Solicitud>) {
     super(data);
