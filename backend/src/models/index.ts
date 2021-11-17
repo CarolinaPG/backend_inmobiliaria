@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export * from './rol.model';
 export * from './modulo.model';
 export * from './estado.model';
@@ -10,4 +9,7 @@ export * from './persona.model';
 export * from './solicitud.model';
 export * from './inmueble.model';
 export * from './ciudad.model';
-
+export * from './rol-operacion.model';
+export * from './operacion.model';
+export * from './email.model';
+export * from './documento.model';
