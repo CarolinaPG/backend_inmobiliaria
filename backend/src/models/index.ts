@@ -27,3 +27,4 @@ export * from './email.model';
 export * from './modulo.model';
 export * from './tipo-inmueble.model';
 export * from './tipo-oferta.model';
+export * from './credenciales.model';

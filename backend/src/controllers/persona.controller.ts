@@ -16,15 +16,90 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
-import {Persona} from '../models';
-import {PersonaRepository} from '../repositories';
+import {service} from '@loopback/core';
+import {Llaves} from '../config/llaves';
+import {Credenciales, Persona} from '../models';
+import {PersonaRepository, EmailRepository} from '../repositories';
+import {AutenticacionService, NotificacionService} from '../services';
+//const fetch = require("node-fetch");
+const fetch = require("cross-fetch");
 
 export class PersonaController {
   constructor(
     @repository(PersonaRepository)
     public personaRepository : PersonaRepository,
+    @repository(EmailRepository)
+    public emailRepository : EmailRepository,
+    @service(AutenticacionService) public servicioAutenticacion: AutenticacionService,
+    @service(NotificacionService) public servicioNotificacion: NotificacionService
   ) {}
+
+  @post('/identificarPersona', {
+    responses: {
+      '200': {
+        description: "Identificación de usuarios"
+      }
+    }
+  })
+  async identificarPersona(
+    @requestBody() credenciales: Credenciales
+  ) {
+    let p = await this.servicioAutenticacion.IdentificarPersona(credenciales.usuario, credenciales.clave);
+    if (p) {
+      let token = this.servicioAutenticacion.GenerarTokenJWT(p);
+      return {
+        datos: {
+          nombre: p.nombres,
+          correo: p.id_email,
+          id: p.id
+        },
+        tk: token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos inválidos");
+    }
+  }
+
+  @patch('/recuperarClave', {
+    responses: {
+      '200': {
+        description: "Recuperación de Clave"
+      }
+    }
+  })
+  async recuperarClave(
+    @requestBody() credenciales: Credenciales
+  ) {
+    console.log(credenciales.usuario)
+    let correo = await this.emailRepository.findOne({where: {email: credenciales.usuario}});
+    let persona = await this.personaRepository.findOne({where: {id_email: correo?.id}});
+    if(correo){
+      if(persona){
+        let clave = this.servicioAutenticacion.GenerarClave();
+        let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+        persona.clave = claveCifrada;
+        console.log(clave);
+        //Notificar al usuario
+        this.servicioNotificacion.NotificarRecuperacionClave(persona, clave);
+        persona.id_email = correo.getId();
+        await this.personaRepository.updateAll(persona);
+        console.log("************************************************************");
+        return {
+            datos: {
+              nombre: persona.nombres,
+              correo: correo.email,
+              id: persona.id
+          }
+        }
+      } else {
+        throw new HttpErrors[401]("No existe un usuario registrado con ese email.");
+      } 
+    } else {
+      throw new HttpErrors[401]("El email NO ESTÁ registrado");
+    } 
+  }
 
   @post('/personas')
   @response(200, {
@@ -44,7 +119,27 @@ export class PersonaController {
     })
     persona: Persona,
   ): Promise<Persona> {
-    return this.personaRepository.create(persona);
+    console.log("****************");
+    let existe = await this.emailRepository.findOne({where: {email: persona.id_email}});
+    if(!existe){
+      let correo = await this.emailRepository.create({
+        "email": persona.id_email,
+        "id_estado": 9
+      });
+      let clave = this.servicioAutenticacion.GenerarClave();
+      let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+      persona.clave = claveCifrada;
+      console.log(clave);
+      //Notificar al usuario
+      this.servicioNotificacion.NotificarRegistroPlataforma(persona, clave);
+      persona.id_email = correo.getId();
+      let p = await this.personaRepository.create(persona);
+      console.log("************************************************************");
+      return p;
+    //return this.personaRepository.create(persona);
+    } else {
+      throw new HttpErrors[401]("El email YA ESTÁ registrado");
+    } 
   }
 
   @get('/personas/count')
