@@ -16,6 +16,11 @@ export class Email extends Entity {
   })
   email: string;
 
+  @property({
+    type: 'string',
+  })
+  hash: string;
+
   @belongsTo(() => Estado, {name: 'estEmail'})
   id_estado: number;
 

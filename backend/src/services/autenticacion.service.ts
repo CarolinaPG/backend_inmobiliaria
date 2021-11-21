@@ -29,16 +29,6 @@ export class AutenticacionService {
     return claveCifrada;
   }
 
-/**  VerificarEmailExiste(emailId: string){
-    let em = this.emailRepository.findById(emailId);
-    //let em = this.emailRepository.findOne({where: {email: usuario}});
-    if(em != null){
-      return true;
-    } else {
-      return false;
-    }
-  }
-*/
   async IdentificarPersona(usuario: string, clave: string) {
     try {
       let em = await this.emailRepository.findOne({where: {email: usuario}});
@@ -72,10 +62,12 @@ export class AutenticacionService {
   GenerarTokenJWT(persona: Persona) {
     let token = jwt.sign({
       //expiración fecha -> No se va a usar
-      data: {
+      info: {
         id: persona.id,
+        nombre: persona.nombres + " " + persona.apellidos,
+        celular: persona.celular,
         correo: persona.id_email,
-        nombre: persona.nombres + " " + persona.apellidos
+        rol: persona.id_rol
       }
     }, Llaves.claveJWT);
     return token;

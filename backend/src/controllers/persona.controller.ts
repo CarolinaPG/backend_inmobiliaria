@@ -19,13 +19,14 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import {service} from '@loopback/core';
-import {Llaves} from '../config/llaves';
 import {Credenciales, Persona} from '../models';
 import {PersonaRepository, EmailRepository} from '../repositories';
 import {AutenticacionService, NotificacionService} from '../services';
+import { authenticate } from '@loopback/authentication';
 //const fetch = require("node-fetch");
 const fetch = require("cross-fetch");
 
+//@authenticate("admin")
 export class PersonaController {
   constructor(
     @repository(PersonaRepository)
@@ -51,9 +52,12 @@ export class PersonaController {
       let token = this.servicioAutenticacion.GenerarTokenJWT(p);
       return {
         datos: {
-          nombre: p.nombres,
+          id: p.id,
+          nombres: p.nombres,
+          apellidos: p.apellidos,
+          celular: p.celular,
           correo: p.id_email,
-          id: p.id
+          rol: p.id_rol
         },
         tk: token
       }
@@ -101,6 +105,7 @@ export class PersonaController {
     } 
   }
 
+  @authenticate("admin")
   @post('/personas')
   @response(200, {
     description: 'Persona model instance',
@@ -125,7 +130,7 @@ export class PersonaController {
       if(!existePersona){
         let correo = await this.emailRepository.create({
           "email": persona.id_email,
-          "id_estado": 9
+          "id_estado": 10
         });
         let clave = this.servicioAutenticacion.GenerarClave();
         let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
@@ -147,6 +152,7 @@ export class PersonaController {
     } 
   }
 
+  //@authenticate.skip()
   @get('/personas/count')
   @response(200, {
     description: 'Persona model count',
