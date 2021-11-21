@@ -79,13 +79,13 @@ export class PersonaController {
       if(persona){
         let clave = this.servicioAutenticacion.GenerarClave();
         let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
-        persona.clave = claveCifrada;
         console.log(clave);
+        persona.id_email = correo.email;
         //Notificar al usuario
         this.servicioNotificacion.NotificarRecuperacionClave(persona, clave);
+        persona.clave = claveCifrada;
         persona.id_email = correo.getId();
         await this.personaRepository.updateAll(persona);
-        console.log("************************************************************");
         return {
             datos: {
               nombre: persona.nombres,
@@ -97,7 +97,7 @@ export class PersonaController {
         throw new HttpErrors[401]("No existe un usuario registrado con ese email.");
       } 
     } else {
-      throw new HttpErrors[401]("El email NO ESTÁ registrado");
+      throw new HttpErrors[401]("El email NO ESTÁ registrado en la base de datos");
     } 
   }
 
@@ -119,23 +119,28 @@ export class PersonaController {
     })
     persona: Persona,
   ): Promise<Persona> {
-    console.log("****************");
-    let existe = await this.emailRepository.findOne({where: {email: persona.id_email}});
-    if(!existe){
-      let correo = await this.emailRepository.create({
-        "email": persona.id_email,
-        "id_estado": 9
-      });
-      let clave = this.servicioAutenticacion.GenerarClave();
-      let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
-      persona.clave = claveCifrada;
-      console.log(clave);
-      //Notificar al usuario
-      this.servicioNotificacion.NotificarRegistroPlataforma(persona, clave);
-      persona.id_email = correo.getId();
-      let p = await this.personaRepository.create(persona);
-      console.log("************************************************************");
-      return p;
+    let existeEmail = await this.emailRepository.findOne({where: {email: persona.id_email}});
+    if(!existeEmail){
+      let existePersona = await this.personaRepository.findOne({where: {id: persona.id}});
+      if(!existePersona){
+        let correo = await this.emailRepository.create({
+          "email": persona.id_email,
+          "id_estado": 9
+        });
+        let clave = this.servicioAutenticacion.GenerarClave();
+        let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+        persona.clave = claveCifrada;
+        console.log("****************");
+        console.log(clave);
+        console.log("****************");
+        //Notificar al usuario
+        this.servicioNotificacion.NotificarRegistroPlataforma(persona, clave);
+        persona.id_email = correo.getId();
+        let p = await this.personaRepository.create(persona);
+        return p;
+      } else {
+        throw new HttpErrors[401]("El id del usuario YA ESTÁ registrado");
+      } 
     //return this.personaRepository.create(persona);
     } else {
       throw new HttpErrors[401]("El email YA ESTÁ registrado");

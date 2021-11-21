@@ -20,10 +20,27 @@ export class NotificacionService {
   NotificarRegistroPlataforma(persona: Persona, clave: string) {
     let destino = persona.id_email;
     let asunto = 'Registro en la Plataforma';
-    let contenido = `Hola ${persona.nombres} ${persona.apellidos}. \nSu nombre de usuario es: ${persona.id_email}
-    Su contraseña es ${clave}\n\nAdios!`;
-    //<a href="url/confirmacion?token">aquí</a> para activar tu cuenta
-  
+    let contenido = `
+    <html>
+      <head></head>
+      <body>
+        <p>Hola ${persona.nombres} ${persona.apellidos}!<br><br>
+           ¿Cómo te encuentras el día de hoy?<br><br>
+           Bienvenido a "Hogar Colombia"<br>
+           Es un placer para nosotros poder apoyarte para encontrar lo que buscas.<br>
+           Su nombre de usuario es: ${persona.id_email}<br>
+           Su contraseña es: ${clave}<br><br>
+           
+           Haga click <a href="http://www.python.org">aquí</a> para confirmar su email.
+        </p>
+        
+        <p> 
+            <a href="https://ibb.co/8rgfjD1"><img src="https://i.ibb.co/ZBzFh6q/Estructura-General-drawio.png" alt="Estructura-General-drawio" border="0"></a>
+        </p>
+      </body>
+    </html>
+    `
+
     fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
       .then((data: any) => {
         console.log(data);
@@ -32,18 +49,29 @@ export class NotificacionService {
 
   NotificarRecuperacionClave(persona: Persona, clave: string) {
     let destino = persona.id_email;
-    let asunto = 'Recuperación de Clave';
-    let contenido = `Hola ${persona.nombres} ${persona.apellidos}. 
-    
-    Su nombre de usuario es: ${persona.id_email}
-    Su nueva contraseña es: ${clave}
-    
-    Adios!`;
+    let asunto = 'Recuperación de Contraseña';
+    let contenido = `
+    <html>
+      <head></head>
+      <body>
+        <p>Hola ${persona.nombres} ${persona.apellidos}!<br><br>
+           ¿Cómo te encuentras el día de hoy?<br><br>
+           Queremos que recuperes tu acceso a "Hogar Colombia"<br>
+           Su nombre de usuario es: ${persona.id_email}<br>
+           Su nueva contraseña es: ${clave}<br><br>
+        </p>
+        
+        <p> 
+            <a href="https://ibb.co/8rgfjD1"><img src="https://i.ibb.co/ZBzFh6q/Estructura-General-drawio.png" alt="Estructura-General-drawio" border="0"></a>
+        </p>
+      </body>
+    </html>
+    `
+
     fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
       .then((data: any) => {
         console.log(data);
       });
+
   }
-
-
 }

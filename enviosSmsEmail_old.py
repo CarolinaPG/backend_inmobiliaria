@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Created on Sat Nov 20 20:18:02 2021
+
+@author: carolina
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Nov  5 21:53:19 2021
  
 @author: carolina
@@ -11,12 +19,6 @@ from flask import Flask
 from flask import request
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-
-import smtplib
-
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
 
 app = Flask(__name__)
 
@@ -56,49 +58,21 @@ def email():
     asunto = request.args.get("asunto")
     mensaje = request.args.get("contenido")
 
-    """
     message = Mail(
     from_email='progwebmeanleaders@gmail.com',
     to_emails=destino,
     subject=asunto,
     html_content=mensaje)
-    """
-    # Create message container - the correct MIME type is multipart/alternative.
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = asunto
-    msg['From'] = "progwebmeanleaders@gmail.com"
-    msg['To'] = destino
-
+    print(destino)
+    print(asunto)
+    print(mensaje)
+    print(message)
     try:
-        # Create the body of the message (a plain-text and an HTML version).
-        text = "Notificación de Mean Leaders "
-        html = mensaje
-        
-        # Record the MIME types of both parts - text/plain and text/html.
-        part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(html, 'html')
-        
-        
-        # Attach parts into message container.
-        # According to RFC 2046, the last part of a multipart message, in this case
-        # the HTML message, is best and preferred.
-        msg.attach(part1)
-        msg.attach(part2)
-        
-        #create server
-        server = smtplib.SMTP('smtp.gmail.com: 587')
-        
-        server.starttls()
-        
-        # Login Credentials for sending the mail
-        server.login(msg['From'], os.environ.get('password'))
-        
-        # send the message via the server.
-        server.sendmail(msg['From'], msg['To'], msg.as_string())
-        
-        server.quit()
-        
-        #print ("successfully sent email to %s:" % (msg['To']))
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
         return "Enviado correctamente"
     except Exception as e:
         print(e)    
