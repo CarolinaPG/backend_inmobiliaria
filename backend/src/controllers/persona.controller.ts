@@ -106,12 +106,108 @@ export class PersonaController {
   }
 
   @authenticate("admin")
-  @post('/personas')
+  @post('/personas/admin')
   @response(200, {
     description: 'Persona model instance',
     content: {'application/json': {schema: getModelSchemaRef(Persona)}},
   })
-  async create(
+  async createAdmin(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Persona, {
+            title: 'NewPersona',
+            
+          }),
+        },
+      },
+    })
+    persona: Persona,
+  ): Promise<Persona> {
+    let existeEmail = await this.emailRepository.findOne({where: {email: persona.id_email}});
+    if(!existeEmail){
+      let existePersona = await this.personaRepository.findOne({where: {id: persona.id}});
+      if(!existePersona){
+        let correo = await this.emailRepository.create({
+          "email": persona.id_email,
+          "id_estado": 10
+        });
+        let clave = this.servicioAutenticacion.GenerarClave();
+        let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+        persona.clave = claveCifrada;
+        console.log("****************");
+        console.log(clave);
+        console.log("****************");
+        //Notificar al usuario
+        this.servicioNotificacion.NotificarRegistroPlataforma(persona, clave);
+        persona.id_email = correo.getId();
+        let p = await this.personaRepository.create(persona);
+        return p;
+      } else {
+        throw new HttpErrors[401]("El id del usuario YA ESTÁ registrado");
+      } 
+    //return this.personaRepository.create(persona);
+    } else {
+      throw new HttpErrors[401]("El email YA ESTÁ registrado");
+    } 
+  }
+
+  @authenticate("admin")
+  @post('/personas/asesor')
+  @response(200, {
+    description: 'Persona model instance',
+    content: {'application/json': {schema: getModelSchemaRef(Persona)}},
+  })
+  async createAsesor(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Persona, {
+            title: 'NewPersona',
+            
+          }),
+        },
+      },
+    })
+    persona: Persona,
+  ): Promise<Persona> {
+    let existeEmail = await this.emailRepository.findOne({where: {email: persona.id_email}});
+    if(!existeEmail){
+      let existePersona = await this.personaRepository.findOne({where: {id: persona.id}});
+      if(!existePersona){
+        let correo = await this.emailRepository.create({
+          "email": persona.id_email,
+          "id_estado": 10
+        });
+        let clave = this.servicioAutenticacion.GenerarClave();
+        let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
+        persona.clave = claveCifrada;
+        console.log("****************");
+        console.log(clave);
+        console.log("****************");
+        //Notificar al usuario
+        this.servicioNotificacion.NotificarRegistroPlataforma(persona, clave);
+        persona.id_email = correo.getId();
+        let p = await this.personaRepository.create(persona);
+        return p;
+      } else {
+        throw new HttpErrors[401]("El id del usuario YA ESTÁ registrado");
+      } 
+    //return this.personaRepository.create(persona);
+    } else {
+      throw new HttpErrors[401]("El email YA ESTÁ registrado");
+    } 
+  }
+
+
+  //@authenticate("admin")
+  @authenticate("asesor")
+  @post('/personas/cliente')
+  @response(200, {
+    description: 'Persona model instance',
+    content: {'application/json': {schema: getModelSchemaRef(Persona)}},
+  })
+  async createCliente(
     @requestBody({
       content: {
         'application/json': {
