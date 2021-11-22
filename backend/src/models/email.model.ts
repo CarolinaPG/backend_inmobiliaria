@@ -18,11 +18,16 @@ export class Email extends Entity {
 
   @property({
     type: 'string',
+    required: false,
   })
   hash: string;
 
-  @belongsTo(() => Estado, {name: 'estEmail'})
-  id_estado: number;
+  @property({
+    type: 'string',
+    required: false,
+    default: "UNVERIFIED",
+  })
+  estado: string;
 
   constructor(data?: Partial<Email>) {
     super(data);

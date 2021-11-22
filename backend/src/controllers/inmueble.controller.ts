@@ -16,14 +16,17 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {Inmueble} from '../models';
-import {InmuebleRepository} from '../repositories';
+import {InmuebleRepository, PersonaRepository} from '../repositories';
 
 export class InmuebleController {
   constructor(
     @repository(InmuebleRepository)
     public inmuebleRepository : InmuebleRepository,
+    @repository(PersonaRepository)
+    public personaRepository : PersonaRepository,
   ) {}
 
   @post('/inmuebles')
@@ -44,8 +47,35 @@ export class InmuebleController {
     })
     inmueble: Inmueble,
   ): Promise<Inmueble> {
-    return this.inmuebleRepository.create(inmueble);
+    console.log("************************************")
+    console.log(inmueble.id);
+    let existeId = await this.inmuebleRepository.findOne({where: {id: inmueble.id}});
+    if(!existeId){
+      let existeAsesor = await this.personaRepository.findOne({where: {id: inmueble.id_asesor, id_rol: 2}});
+      if(!existeAsesor){
+        let i = await this.inmuebleRepository.create({
+          "id": inmueble.id,
+          "direccion": inmueble.direccion,
+          "valor": inmueble.valor,
+          "fotografia": inmueble.fotografia,
+          "id_asesor": inmueble.id_asesor,
+          "id_ciudad": inmueble.id_ciudad,
+          "id_estado": inmueble.id_estado,
+          "id_tipoInmueble": inmueble.id_tipoInmueble,
+          "id_tipoOferta": inmueble.id_tipoOferta
+        });
+        //Notificar al asesor encargado
+        //this.servicioNotificacion.NotificarAsesorEncargado(persona, clave);
+        return i;
+      } else {
+        throw new HttpErrors[401]("La persona encargada no es un asesor registrado.");
+      } 
+    //return this.personaRepository.create(persona);
+    } else {
+      throw new HttpErrors[401]("Ya existe un inmueble registrado con ese código.");
+    } 
   }
+    //return this.inmuebleRepository.create(inmueble);
 
   @get('/inmuebles/count')
   @response(200, {

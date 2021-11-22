@@ -105,7 +105,7 @@ export class PersonaController {
     } 
   }
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @post('/personas/admin')
   @response(200, {
     description: 'Persona model instance',
@@ -130,7 +130,7 @@ export class PersonaController {
       if(!existePersona){
         let correo = await this.emailRepository.create({
           "email": persona.id_email,
-          "id_estado": 10
+          "hash": "10"
         });
         let clave = this.servicioAutenticacion.GenerarClave();
         let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
@@ -177,7 +177,7 @@ export class PersonaController {
       if(!existePersona){
         let correo = await this.emailRepository.create({
           "email": persona.id_email,
-          "id_estado": 10
+          "hash": "10"
         });
         let clave = this.servicioAutenticacion.GenerarClave();
         let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);
@@ -226,7 +226,7 @@ export class PersonaController {
       if(!existePersona){
         let correo = await this.emailRepository.create({
           "email": persona.id_email,
-          "id_estado": 10
+          "hash": "111111"
         });
         let clave = this.servicioAutenticacion.GenerarClave();
         let claveCifrada = this.servicioAutenticacion.CifrarClave(clave);

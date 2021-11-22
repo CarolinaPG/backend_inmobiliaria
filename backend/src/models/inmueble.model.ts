@@ -36,6 +36,7 @@ export class Inmueble extends Entity {
 
   @property({
     type: 'string',
+    required: false,
   })
   videoYoutube?: string;
 
@@ -53,9 +54,6 @@ export class Inmueble extends Entity {
 
   @belongsTo(() => TipoOferta, {name: 'tOferta'})
   id_tipoOferta: number;
-
-  @belongsTo(() => Rol, {name: 'rolPersona'})
-  id_rol: number;
 
   constructor(data?: Partial<Inmueble>) {
     super(data);

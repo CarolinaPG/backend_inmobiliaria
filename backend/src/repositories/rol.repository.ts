@@ -1,9 +1,7 @@
 import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
-import {Rol, RolRelations, Operacion, RolOp} from '../models';
-import {RolOpRepository} from './rol-op.repository';
-import {OperacionRepository} from './operacion.repository';
+import {Rol, RolRelations,} from '../models';
 
 export class RolRepository extends DefaultCrudRepository<
   Rol,
@@ -11,16 +9,9 @@ export class RolRepository extends DefaultCrudRepository<
   RolRelations
 > {
 
-  public readonly operaciones: HasManyThroughRepositoryFactory<Operacion, typeof Operacion.prototype.id,
-          RolOp,
-          typeof Rol.prototype.id
-        >;
-
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('RolOpRepository') protected rolOpRepositoryGetter: Getter<RolOpRepository>, @repository.getter('OperacionRepository') protected operacionRepositoryGetter: Getter<OperacionRepository>,
+    @inject('datasources.mongodb') dataSource: MongodbDataSource,
   ) {
     super(Rol, dataSource);
-    this.operaciones = this.createHasManyThroughRepositoryFactoryFor('operaciones', operacionRepositoryGetter, rolOpRepositoryGetter,);
-    this.registerInclusionResolver('operaciones', this.operaciones.inclusionResolver);
   }
 }

@@ -34,8 +34,15 @@ export class Persona extends Entity {
 
   @property({
     type: 'string',
+    required: false,
   })
   clave?: string;
+
+  @property({
+    type: 'string',
+    required: false,
+  })
+  link: string;
 
   @hasMany(() => Inmueble, {through: {model: () => Solicitud, keyFrom: 'id_cliente', keyTo: 'id_inmueble'}})
   inmuebles: Inmueble[];
