@@ -33,6 +33,6 @@ export class InmuebleEstadoController {
   async getEstado(
     @param.path.string('id') id: typeof Inmueble.prototype.id,
   ): Promise<Estado> {
-    return this.inmuebleRepository.estInmueble(id);
+    return this.inmuebleRepository.estado(id);
   }
 }

@@ -19,7 +19,7 @@ export class Ciudad extends Entity {
   @property({
     type: 'number',
   })
-  id_departamento?: number;
+  id_depa?: number;
 
   constructor(data?: Partial<Ciudad>) {
     super(data);

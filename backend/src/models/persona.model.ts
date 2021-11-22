@@ -1,8 +1,8 @@
 import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository';
 import {Inmueble} from './inmueble.model';
 import {Solicitud} from './solicitud.model';
-import {Rol} from './rol.model';
 import {Email} from './email.model';
+import {Rol} from './rol.model';
 
 @model()
 export class Persona extends Entity {
@@ -34,24 +34,18 @@ export class Persona extends Entity {
 
   @property({
     type: 'string',
-    required: false,
+    default: "",
   })
   clave?: string;
-
-  @property({
-    type: 'string',
-    required: false,
-  })
-  link: string;
 
   @hasMany(() => Inmueble, {through: {model: () => Solicitud, keyFrom: 'id_cliente', keyTo: 'id_inmueble'}})
   inmuebles: Inmueble[];
 
-  @belongsTo(() => Rol, {name: 'rolPersona'})
-  id_rol: number;
-
-  @belongsTo(() => Email, {name: 'emailPersona'})
+  @belongsTo(() => Email, {name: 'email'})
   id_email: string;
+
+  @belongsTo(() => Rol, {name: 'rol'})
+  id_rol: number;
 
   constructor(data?: Partial<Persona>) {
     super(data);

@@ -33,6 +33,6 @@ export class InmuebleTipoOfertaController {
   async getTipoOferta(
     @param.path.string('id') id: typeof Inmueble.prototype.id,
   ): Promise<TipoOferta> {
-    return this.inmuebleRepository.tOferta(id);
+    return this.inmuebleRepository.tipoO(id);
   }
 }

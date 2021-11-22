@@ -1,4 +1,4 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class Rol extends Entity {
@@ -15,6 +15,7 @@ export class Rol extends Entity {
     required: true,
   })
   nombre: string;
+
 
   constructor(data?: Partial<Rol>) {
     super(data);

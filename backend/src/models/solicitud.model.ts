@@ -33,7 +33,7 @@ export class Solicitud extends Entity {
   @hasMany(() => Documento, {keyTo: 'id_solicitud'})
   documentos: Documento[];
 
-  @belongsTo(() => Estado, {name: 'estSolicitud'})
+  @belongsTo(() => Estado, {name: 'estado'})
   id_estado: number;
 
   constructor(data?: Partial<Solicitud>) {

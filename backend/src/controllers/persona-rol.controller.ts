@@ -33,6 +33,6 @@ export class PersonaRolController {
   async getRol(
     @param.path.string('id') id: typeof Persona.prototype.id,
   ): Promise<Rol> {
-    return this.personaRepository.rolPersona(id);
+    return this.personaRepository.rol(id);
   }
 }

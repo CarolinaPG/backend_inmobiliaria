@@ -33,6 +33,6 @@ export class SolicitudEstadoController {
   async getEstado(
     @param.path.string('id') id: typeof Solicitud.prototype.id,
   ): Promise<Estado> {
-    return this.solicitudRepository.estSolicitud(id);
+    return this.solicitudRepository.estado(id);
   }
 }
