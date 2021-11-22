@@ -34,7 +34,6 @@ export class Persona extends Entity {
 
   @property({
     type: 'string',
-    default: "",
   })
   clave?: string;
 

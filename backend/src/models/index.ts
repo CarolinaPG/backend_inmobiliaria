@@ -10,3 +10,5 @@ export * from './estado.model';
 export * from './persona.model';
 export * from './inmueble.model';
 export * from './solicitud.model';
+export * from './formulario-registro.model';
+export * from './credenciales.model';
