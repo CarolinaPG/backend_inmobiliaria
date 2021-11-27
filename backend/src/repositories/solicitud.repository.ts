@@ -16,14 +16,14 @@ export class SolicitudRepository extends DefaultCrudRepository<
 
   public readonly documentos: HasManyRepositoryFactory<Documento, typeof Solicitud.prototype.id>;
 
-  public readonly estSolicitud: BelongsToAccessor<Estado, typeof Solicitud.prototype.id>;
+  public readonly estado: BelongsToAccessor<Estado, typeof Solicitud.prototype.id>;
 
   constructor(
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('FechaRepository') protected fechaRepositoryGetter: Getter<FechaRepository>, @repository.getter('DocumentoRepository') protected documentoRepositoryGetter: Getter<DocumentoRepository>, @repository.getter('EstadoRepository') protected estadoRepositoryGetter: Getter<EstadoRepository>,
   ) {
     super(Solicitud, dataSource);
-    this.estSolicitud = this.createBelongsToAccessorFor('estSolicitud', estadoRepositoryGetter,);
-    this.registerInclusionResolver('estSolicitud', this.estSolicitud.inclusionResolver);
+    this.estado = this.createBelongsToAccessorFor('estado', estadoRepositoryGetter,);
+    this.registerInclusionResolver('estado', this.estado.inclusionResolver);
     this.documentos = this.createHasManyRepositoryFactoryFor('documentos', documentoRepositoryGetter,);
     this.registerInclusionResolver('documentos', this.documentos.inclusionResolver);
     this.fechas = this.createHasManyRepositoryFactoryFor('fechas', fechaRepositoryGetter,);

@@ -1,5 +1,4 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {Estado} from './estado.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class Email extends Entity {
@@ -16,8 +15,17 @@ export class Email extends Entity {
   })
   email: string;
 
-  @belongsTo(() => Estado, {name: 'estEmail'})
-  id_estado: number;
+  @property({
+    type: 'string',
+  })
+  hash?: string;
+
+  @property({
+    type: 'string',
+    default: "UNVERIFIED",
+  })
+  estado?: string;
+
 
   constructor(data?: Partial<Email>) {
     super(data);

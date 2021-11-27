@@ -1,6 +1,4 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {Operacion} from './operacion.model';
-import {RolOp} from './rol-op.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class Rol extends Entity {
@@ -18,8 +16,6 @@ export class Rol extends Entity {
   })
   nombre: string;
 
-  @hasMany(() => Operacion, {through: {model: () => RolOp, keyFrom: 'id_rol', keyTo: 'id_operacion'}})
-  operaciones: Operacion[];
 
   constructor(data?: Partial<Rol>) {
     super(data);

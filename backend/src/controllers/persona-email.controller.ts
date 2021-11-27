@@ -33,6 +33,6 @@ export class PersonaEmailController {
   async getEmail(
     @param.path.string('id') id: typeof Persona.prototype.id,
   ): Promise<Email> {
-    return this.personaRepository.emailPersona(id);
+    return this.personaRepository.email(id);
   }
 }
