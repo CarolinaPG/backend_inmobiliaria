@@ -12,6 +12,12 @@ export class FormularioRegistro extends Model {
     type: 'string',
     required: true,
   })
+  tipoId: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   nombres: string;
 
   @property({
