@@ -1,33 +1,15 @@
 import { service } from '@loopback/core';
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
-  HttpErrors,
-} from '@loopback/rest';
+import { Count, CountSchema, Filter, FilterExcludingWhere, repository, Where, } from '@loopback/repository';
+import { post, param, get, getModelSchemaRef, patch, put, del, requestBody, response, HttpErrors, } from '@loopback/rest';
 import { Persona } from '../models';
-import { FormularioRegistro } from '../models/formulario-registro.model';
+//import { FormularioRegistro } from '../models/formulario-registro.model';
 import { Credenciales } from '../models';
-import {PersonaRepository, EmailRepository, } from '../repositories';
+import { PersonaRepository, EmailRepository, } from '../repositories';
 import { AutenticacionService, NotificacionService, RegistroService } from '../services';
 import { authenticate } from '@loopback/authentication';
-import { Llaves } from '../config/llaves';
+//import { Llaves } from '../config/llaves';
+//import { Console } from 'console';
 
-@authenticate("admin")
 export class PersonaController {
   constructor(
     @repository(PersonaRepository)
@@ -48,7 +30,46 @@ export class PersonaController {
     
   ) {}
 
-  @authenticate.skip()
+
+  //@authenticate("cliente")
+  @get('/verifyEmail/{token}')
+  @response(200, {
+    description: 'Verificacion de email',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Persona, {includeRelations: true}),
+      },
+    },
+  })
+  async verificarEmail(
+    @param.path.string('token') token: string,
+  ): Promise<Persona> {
+    let datos = await this.autenticacionService.ValidarTokenJWT(token);
+    let correo = await this.emailRepository.findOne({where: {email: datos.email}});
+    if(correo == null)
+      throw new HttpErrors[401]("El correo es null.")
+    if(correo.estado == "VERIFIED"){
+        throw new HttpErrors[401]("El email ya había sido verificado");
+    } else if(correo.estado == "UNVERIFIED"){
+      await this.emailRepository.updateById(correo.id, {
+        "estado": "VERIFIED"
+      });
+      let user =  await this.personaRepository.findOne({where: {id_email: correo.id}});
+      if(user)
+        return user;
+      else
+        throw new HttpErrors[401]("Error verificando el usurio registrado para ese correo.")
+    } else {
+      throw new HttpErrors[401]("Email no encontrado");
+    }
+  }
+
+  /**
+   * Identificar personas y crear un token para el usuario y contraseña
+   * @param credenciales 
+   * @returns 
+   */
+  //@authenticate("asesor", "admin", "cliente")
   @post('/identificarPersona', {
     responses: {
       '200': {
@@ -61,199 +82,68 @@ export class PersonaController {
   ) {
     let p = await this.autenticacionService.IdentificarPersona(credenciales.usuario, credenciales.clave);
     if (p) {
-      let token = this.autenticacionService.GenerarTokenJWT(p);
-      return {
-        datos: {
-          id: p.id,
-          nombres: p.nombres,
-          apellidos: p.apellidos,
-          celular: p.celular,
-          correo: p.id_email,
-          rol: p.id_rol
-        },
-        tk: token
+      let em = await this.emailRepository.findById(p.id_email);
+      if(p.id_rol == 3 && em.estado == "UNVERIFIED")
+        throw new HttpErrors[401]("Debe verificar su email primero");
+      else {
+        let token = this.autenticacionService.GenerarTokenJWT(p);
+        return {
+          datos: {
+            id: p.id,
+            nombres: p.nombres,
+            apellidos: p.apellidos,
+            celular: p.celular,
+            correo: em.email,
+            rol: p.id_rol
+          },
+          tk: token
+        }
       }
     } else {
       throw new HttpErrors[401]("Datos inválidos");
     }
   }
- 
-  ///**
-  @post('/personaAdmin')
+
+  @patch('/recuperarClave')
   @response(200, {
-    description: 'Persona model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Persona)}},
-  })
-  async createAdmin(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(FormularioRegistro, {
-            title: 'NewRegistro',
-            
-          }),
+        description: "Recuperación de Clave",
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Persona, {includeRelations: true}),
+          },
         },
-      },
-    })
-    formulario: FormularioRegistro,
-  ): Promise<Persona> {
-    if(await this.registroService.ValidarEmail(formulario.email) == null){
-      if(await this.registroService.ValidarPersona(formulario.id) == null){
-        try{
-          let correo = await this.registroService.RegistrarCorreo(formulario.email);
-          let clave = this.autenticacionService.GenerarClave();
-          let claveCifrada = this.autenticacionService.CifrarClave(clave);
-          let persona = await this.registroService.RegistrarPersona(formulario);
-          console.log("****************");
-          console.log(clave);
-          console.log("****************");
-          await this.personaRepository.updateById(formulario.id, {
-            "clave": claveCifrada,
-            "id_email": correo.getId(),
-            "id_rol": 1
-          });
-          await this.notificacionService.NotificarRegistroAdmin(formulario, clave);
-          await this.emailRepository.updateById(correo.getId(), {
-            "estado": "VERIFIED"
-          });
-          return await this.personaRepository.findById(formulario.id);
-        } catch (e) {
-          throw new HttpErrors[401]("Error registrando al administrador.");
+      })
+  async recuperarClave(
+    @requestBody() credenciales: Credenciales
+  )  {
+    let correo = await this.emailRepository.findOne({where: {email: credenciales.usuario}});
+    let persona = await this.personaRepository.findOne({where: {id_email: correo?.id}});
+    if(correo?.estado == "VERIFIED"){
+      if(persona){
+        let clave = this.autenticacionService.GenerarClave();
+        let claveCifrada = this.autenticacionService.CifrarClave(clave);
+        persona.id_email = correo.email;
+        //Notificar al usuario
+        this.notificacionService.NotificarRecuperacionClave(persona, clave);
+        persona.clave = claveCifrada;
+        persona.id_email = correo.getId();
+        await this.personaRepository.updateById(persona.id, persona);
+        return {
+            datos: {
+              nombre: `${persona.nombres} ${persona.apellidos}`,
+              correo: correo.email,
+              id: persona.id
+          }
         }
       } else {
-        throw new HttpErrors[401]("El id de usuario ya se encuentra registrado");
-      }
+        throw new HttpErrors[401]("No existe un usuario registrado con ese email.");
+      } 
     } else {
-      throw new HttpErrors[401]("El email ya ha sido registrado.");
-    }
-    //return this.personaRepository.create(persona);
+      throw new HttpErrors[401]("El email no esá registrado o verificado aún.");
+    } 
   }
 
-  @post('/personaAsesor')
-  @response(200, {
-    description: 'Persona model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Persona)}},
-  })
-  async createAsesor(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(FormularioRegistro, {
-            title: 'NewRegistro',
-            
-          }),
-        },
-      },
-    })
-    formulario: FormularioRegistro,
-  ): Promise<Persona> {
-    this.registroService.ValidarDatos(formulario, 2);
-    
-    let correo = await this.registroService.RegistrarCorreo(formulario.email);
-    let clave = this.autenticacionService.GenerarClave();
-    let claveCifrada = this.autenticacionService.CifrarClave(clave);
-    await this.registroService.RegistrarPersona(formulario);
-    console.log("****************");
-    console.log(clave);
-    console.log("****************");
-    await this.personaRepository.updateById(formulario.id, {
-      "clave": claveCifrada,
-      "id_email": correo.getId(),
-      "id_rol": 2
-    });
-
-    //Debe confirmar por correo si acepta o no
-    //hash = formulario de aceptación
-    await this.emailRepository.updateById(correo.id, {
-      "hash": ""
-    });
-    return await this.personaRepository.findById(formulario.id);
-    //return this.personaRepository.create(persona);
-  }
-
-  @authenticate("asesor")
-  @post('/personaCliente')
-  @response(200, {
-    description: 'Persona model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Persona)}},
-  })
-  async createCliente(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(FormularioRegistro, {
-            title: 'NewRegistro',
-            
-          }),
-        },
-      },
-    })
-    formulario: FormularioRegistro,
-  ): Promise<Persona> {
-    this.registroService.ValidarDatos(formulario, 3);
-    
-    let correo = await this.registroService.RegistrarCorreo(formulario.email);
-    let clave = this.autenticacionService.GenerarClave();
-    let claveCifrada = this.autenticacionService.CifrarClave(clave);
-    await this.registroService.RegistrarPersona(formulario);
-    console.log("****************");
-    console.log(clave);
-    console.log("****************");
-    await this.personaRepository.updateById(formulario.id, {
-      "clave": claveCifrada,
-      "id_email": correo.getId(),
-      "id_rol": 1
-    });
-
-    //Debe validar correo
-    //hash = con id unico
-    let token = this.autenticacionService.GenerarTokenJWTEmail(formulario.email);
-    
-    let urlConfirm = await this.notificacionService.NotificarRegistroPlataforma(formulario, clave, token);
-    await this.emailRepository.updateById(correo.id, {
-      "hash": ""
-    });
-    
-    return await this.personaRepository.findById(formulario.id);
-    //return this.personaRepository.create(persona);
-  }
-
-  @get('/personas/{token}')
-  @response(200, {
-    description: 'Verificacion de email',
-    content: {
-      'application/json': {
-        schema: getModelSchemaRef(Persona, {includeRelations: true}),
-      },
-    },
-  })
-  async verificarEmail(
-    @param.path.string('token') token: string,
-  ): Promise<Persona> {
-    try {
-      let datos = this.autenticacionService.ValidarTokenJWT(token);
-      console.log(datos);
-      /**
-      let correo = await this.emailRepository.findOne({where: {email: datos.email}});
-      if(correo != null){
-        if(correo?.estado == "VERIFIED")
-          throw new HttpErrors[401]("El email ya había sido verificado");
-        correo.estado = "VERIFIED";
-        let user =  await this.personaRepository.findOne({where: {id_email: correo.id}});
-        if(user != null)
-          return user;
-        else
-          throw new HttpErrors[401]("Error verificando el usurio registrado para ese correo.")
-      } else {
-       */
-        throw new HttpErrors[401]("Error verificando el correo");
-      //}
-    } catch (err) {
-      throw new HttpErrors[401]("Usuario no encontrado");
-    }
-  }
-
-  //*/
+  @authenticate("admin")
   @post('/personas')
   @response(200, {
     description: 'Persona model instance',
@@ -286,6 +176,7 @@ export class PersonaController {
     return this.personaRepository.count(where);
   }
 
+  @authenticate("admin")
   @get('/personas')
   @response(200, {
     description: 'Array of Persona model instances',
@@ -304,6 +195,7 @@ export class PersonaController {
     return this.personaRepository.find(filter);
   }
 
+  @authenticate("admin")
   @patch('/personas')
   @response(200, {
     description: 'Persona PATCH success count',
@@ -323,6 +215,7 @@ export class PersonaController {
     return this.personaRepository.updateAll(persona, where);
   }
 
+  @authenticate("admin")
   @get('/personas/{id}')
   @response(200, {
     description: 'Persona model instance',
@@ -339,6 +232,7 @@ export class PersonaController {
     return this.personaRepository.findById(id, filter);
   }
 
+  @authenticate("admin")
   @patch('/personas/{id}')
   @response(204, {
     description: 'Persona PATCH success',

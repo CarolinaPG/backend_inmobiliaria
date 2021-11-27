@@ -35,7 +35,7 @@ export class AutenticacionService {
 
   GenerarTokenJWT(persona: Persona) {
     let token = jwt.sign({
-      //expiración fecha -> No se va a usar
+      expiresIn: 60 * 30, // expires in 30 minutos = 60*30 = 1800 segundos      info: {
       info: {
         id: persona.id,
         nombre: persona.nombres + " " + persona.apellidos,
@@ -49,7 +49,7 @@ export class AutenticacionService {
 
   GenerarTokenJWTEmail(email: string) {
     let token = jwt.sign({
-      //expiración fecha -> No se va a usar
+      expiresIn: 60 * 30, // expires in 30 minutos = 60*30 = 1800 segundos
       email: email
     }, Llaves.claveJWT);
     return token;
@@ -69,10 +69,7 @@ export class AutenticacionService {
       let em = await this.emailRepository.findOne({where: {email: usuario}});
       let claveCifrada = this.CifrarClave(clave);
       let p = await this.personaRepository.findOne({where: {id_email: em?.getId() , clave: claveCifrada}});
-      if (p) {
-        return p;
-      }
-      return false;
+      return p;
     } catch {
       return false;
     }

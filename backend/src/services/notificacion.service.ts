@@ -45,7 +45,8 @@ export class NotificacionService {
   NotificarRegistroPlataforma(formulario: FormularioRegistro, clave: string, token: any) {
     let destino = formulario.email;
     let asunto = 'Registro en la Plataforma';
-    let url = `${Llaves.urlVerificarEmail}/personas/${token}`;
+    let url = `${Llaves.urlVerificarEmail}${token}`;
+    console.log(url);
     let contenido = `
     <html>
       <head></head>
@@ -63,10 +64,12 @@ export class NotificacionService {
     </html>
     `
 
-    return fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+    fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
       .then((data: any) => {
         console.log(data);
       });
+
+    return url;
   }
 
 
@@ -120,7 +123,7 @@ export class NotificacionService {
     </html>
     `
 
-    fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+    return fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
       .then((data: any) => {
         console.log(data);
       });

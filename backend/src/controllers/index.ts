@@ -23,3 +23,7 @@ export * from './tipo-oferta.controller';
 export * from './inmueble.controller';
 export * from './ciudad.controller';
 export * from './departamento.controller';
+
+export * from './persona-cliente.controller';
+export * from './persona-asesor.controller';
+export * from './persona-administrador.controller';
