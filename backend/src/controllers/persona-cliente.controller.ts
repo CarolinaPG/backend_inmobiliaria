@@ -36,7 +36,7 @@ export class PersonaClienteController {
    * @returns 
    */
   //@authenticate("asesor", "admin")
-  @post('/personaCliente')
+  @post('/clientes')
   @response(200, {
     description: 'Persona model instance',
     content: {'application/json': {schema: getModelSchemaRef(Persona)}},
