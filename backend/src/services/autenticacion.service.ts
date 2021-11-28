@@ -67,8 +67,8 @@ export class AutenticacionService {
   async IdentificarPersona(usuario: string, clave: string) {
     try {
       let em = await this.emailRepository.findOne({where: {email: usuario}});
-      let claveCifrada = this.CifrarClave(clave);
-      let p = await this.personaRepository.findOne({where: {id_email: em?.getId() , clave: claveCifrada}});
+      //let claveCifrada = this.CifrarClave(clave);
+      let p = await this.personaRepository.findOne({where: {id_email: em?.getId() , clave: clave}});
       return p;
     } catch {
       return false;

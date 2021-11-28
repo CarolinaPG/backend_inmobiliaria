@@ -129,11 +129,9 @@ export class PersonaController {
         persona.id_email = correo.getId();
         await this.personaRepository.updateById(persona.id, persona);
         return {
-            datos: {
               nombre: `${persona.nombres} ${persona.apellidos}`,
               correo: correo.email,
               id: persona.id
-          }
         }
       } else {
         throw new HttpErrors[401]("No existe un usuario registrado con ese email.");
