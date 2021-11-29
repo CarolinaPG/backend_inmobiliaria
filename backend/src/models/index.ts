@@ -12,3 +12,4 @@ export * from './inmueble.model';
 export * from './solicitud.model';
 export * from './formulario-registro.model';
 export * from './credenciales.model';
+export * from './formulario-inmueble.model';

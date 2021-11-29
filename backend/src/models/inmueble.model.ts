@@ -10,10 +10,17 @@ export class Inmueble extends Entity {
   @property({
     type: 'string',
     id: true,
+    generated: true,
+  })
+  id?: string;
+
+  @property({
+    type: 'string',
+    id: true,
     generated: false,
     required: true,
   })
-  id: string;
+  codigo: string;
 
   @property({
     type: 'string',

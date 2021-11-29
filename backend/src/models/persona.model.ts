@@ -18,6 +18,12 @@ export class Persona extends Entity {
     type: 'string',
     required: true,
   })
+  tipoId: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
   nombres: string;
 
   @property({

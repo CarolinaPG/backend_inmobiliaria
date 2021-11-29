@@ -1,3 +1,4 @@
+import { service } from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -16,35 +17,53 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
-import {Inmueble} from '../models';
+import {FormularioInmueble, Inmueble} from '../models';
 import {InmuebleRepository} from '../repositories';
+import { NotificacionService, RegistroService } from '../services';
 
 export class InmuebleController {
   constructor(
     @repository(InmuebleRepository)
     public inmuebleRepository : InmuebleRepository,
+
+    @service(NotificacionService)
+    public notificacionService : NotificacionService,
+
+    @service(RegistroService)
+    public registroService : RegistroService,
+    
   ) {}
 
   @post('/inmuebles')
   @response(200, {
-    description: 'Inmueble model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Inmueble)}},
+    description: 'FormularioInmueble model instance',
+    content: {'application/json': {schema: getModelSchemaRef(FormularioInmueble)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Inmueble, {
+          schema: getModelSchemaRef(FormularioInmueble, {
             title: 'NewInmueble',
             
           }),
         },
       },
     })
-    inmueble: Inmueble,
+    formulario: FormularioInmueble,
   ): Promise<Inmueble> {
-    return this.inmuebleRepository.create(inmueble);
+    if(await this.registroService.ValidarDatosInmueble(formulario)){
+      try{
+        return await this.registroService.RegistrarInmueble(formulario);
+      } catch (e){
+        throw new HttpErrors[401]("Error creando el inmueble");
+      }
+    } else {
+      throw new HttpErrors[401]("Datos ingresados son incorrectos");
+    }
+    //return this.inmuebleRepository.create(inmueble);
   }
 
   @get('/inmuebles/count')

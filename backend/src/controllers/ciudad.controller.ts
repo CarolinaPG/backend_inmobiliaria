@@ -122,9 +122,10 @@ export class CiudadController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Ciudad, {exclude: 'where'}) filter?: FilterExcludingWhere<Ciudad>
+    //@param.filter(Ciudad, {exclude: 'where'}) filter?: FilterExcludingWhere<Ciudad>
   ): Promise<Ciudad> {
-    return this.ciudadRepository.findById(id, filter);
+    return this.ciudadRepository.findById(id);
+    //return this.ciudadRepository.findById(id, filter);
   }
 
   @patch('/ciudades/{id}')

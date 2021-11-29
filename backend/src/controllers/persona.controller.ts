@@ -193,7 +193,7 @@ export class PersonaController {
     return this.personaRepository.find(filter);
   }
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @patch('/personas')
   @response(200, {
     description: 'Persona PATCH success count',

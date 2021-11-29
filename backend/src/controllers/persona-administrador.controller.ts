@@ -101,7 +101,6 @@ export class PersonaAdministradorController {
     } else {
       throw new HttpErrors[401]("El email ya ha sido registrado.");
     }
-    //return this.personaRepository.create(persona);
   }
 
 
@@ -156,13 +155,33 @@ export class PersonaAdministradorController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Persona, {partial: true}),
+          schema: getModelSchemaRef(FormularioRegistro, {partial: true}),
         },
       },
     })
-    persona: Persona,
-  ): Promise<void> {
+    formulario: FormularioRegistro,
+  ): Promise <void>{
     let admin = await this.personaRepository.findById(id);
+    let persona: Persona = new Persona();
+    persona.id = admin.id;
+    if (formulario.tipoId)
+      persona.tipoId = formulario.tipoId;
+    else
+      persona.tipoId = admin.tipoId;
+    if (formulario.nombres)
+      persona.nombres = formulario.nombres;
+    else
+      persona.nombres = admin.nombres;
+    if (formulario.apellidos)
+      persona.apellidos = formulario.apellidos;
+    else
+      persona.apellidos = admin.apellidos;
+    if (formulario.celular)
+      persona.celular = formulario.celular;
+    else
+      persona.celular = admin.celular;
+    if (formulario.email)
+      persona.id_email = admin.id_email;
     if (admin.id_rol == 1)
       await this.personaRepository.updateById(id, persona);
     else
