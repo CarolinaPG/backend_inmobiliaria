@@ -42,6 +42,7 @@ export class Inmueble extends Entity {
 
   @property({
     type: 'string',
+    default: "",
   })
   videoYoutube?: string;
 

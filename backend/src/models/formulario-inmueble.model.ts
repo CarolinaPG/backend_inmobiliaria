@@ -36,31 +36,31 @@ export class FormularioInmueble extends Model {
     type: 'number',
     require: true,
   })
-  id_estado: number;
+  estado: number;
 
   @property({
     type: 'number',
     required: true,
   })
-  id_tipoIn: number;
+  tipoIn: number;
 
   @property({
     type: 'number',
     required: true,
   })
-  id_tipoOf: number;
+  tipoOf: number;
 
   @property({
     type: 'number',
     required: true,
   })
-  id_ciudad: number;
+  ciudad: number;
 
   @property({
     type: 'string',
     required: true,
   })
-  id_asesor: string;
+  asesor: string;
 
 
   constructor(data?: Partial<FormularioInmueble>) {

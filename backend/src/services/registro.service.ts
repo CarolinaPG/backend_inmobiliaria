@@ -1,9 +1,9 @@
 import {injectable, /* inject, */ BindingScope} from '@loopback/core';
 import { repository } from '@loopback/repository';
 import { HttpErrors } from '@loopback/rest';
-import { FormularioInmueble } from '../models';
+import { Fecha, FormularioInmueble, FormularioSolicitud } from '../models';
 import { FormularioRegistro } from '../models/formulario-registro.model';
-import { CiudadRepository, EmailRepository, EstadoRepository, InmuebleRepository, PersonaRepository, TipoInmuebleRepository, TipoOfertaRepository } from '../repositories';
+import { CiudadRepository, EmailRepository, EstadoRepository, InmuebleRepository, PersonaRepository, SolicitudRepository, TipoInmuebleRepository, TipoOfertaRepository } from '../repositories';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class RegistroService {
@@ -28,6 +28,9 @@ export class RegistroService {
 
     @repository (TipoOfertaRepository)
     public tipoOfertaRepository: TipoOfertaRepository,
+
+    @repository (SolicitudRepository)
+    public solicitudRepository: SolicitudRepository,
 
   ) {}
 
@@ -69,12 +72,12 @@ export class RegistroService {
   }
 
   async ValidarDatosInmueble(formulario: FormularioInmueble){
-    if( !formulario.id_asesor || await this.ValidarPersona(formulario.id_asesor) == null ){
+    if( !formulario.asesor || await this.ValidarPersona(formulario.asesor) == null ){
       //throw new HttpErrors[401]("El email es inválido.");
       console.log("Asesor problem")
       return false;
     } 
-    if( !formulario.id_ciudad || await this.ValidarCiudad(formulario.id_ciudad) == null ){
+    if( !formulario.ciudad || await this.ValidarCiudad(formulario.ciudad) == null ){
       //throw new HttpErrors[401]("El email es inválido.");
       console.log("id_ciduad problem")
       return false;
@@ -86,12 +89,12 @@ export class RegistroService {
       return false;
     } 
     */
-    if( !formulario.id_tipoIn || await this.ValidarTipoInmueble(formulario.id_tipoIn) == null ){
+    if( !formulario.tipoIn || await this.ValidarTipoInmueble(formulario.tipoIn) == null ){
       //throw new HttpErrors[401]("El email es inválido.");
       console.log("id_tipoIn problem")
       return false;
     } 
-    if( !formulario.id_tipoOf || await this.ValidarTipoOferta(formulario.id_tipoOf) == null ){
+    if( !formulario.tipoOf || await this.ValidarTipoOferta(formulario.tipoOf) == null ){
       //throw new HttpErrors[401]("El email es inválido.");
       console.log("id_tipoOf problem")
       return false;
@@ -116,11 +119,40 @@ export class RegistroService {
       console.log("Fotografia problem")
       return false;
     }
-    /**
-    if( await this.ValidarInmueble(formulario) != null ){
-      console.log("El inmueble ya existe");
+    return true;
+  }
+
+  async ValidarDatosSolicitud(formulario: FormularioSolicitud){
+    if( !formulario.cliente || await this.ValidarPersona(formulario.cliente) == null ){
+      //throw new HttpErrors[401]("El email es inválido.");
+      console.log("cliente problem")
       return false;
+    } else {
+      let persona = await this.personaRepository.findOne({where: {id: formulario.cliente}});
+      let email = await this.emailRepository.findById(persona?.id_email);
+      if(email.estado == "UNVERIFIED"){
+        console.log("Cliente que no ha verificado su email");
+        return false;
+      }
     }
+    if( !formulario.inmueble || await this.ValidarInmueble(formulario.inmueble) == null ){
+      //throw new HttpErrors[401]("El email es inválido.");
+      console.log("inmueble problem")
+      return false;
+    } 
+    /**
+    if( !formulario.estado || await this.ValidarEstado(formulario.estado) == null ){
+      //throw new HttpErrors[401]("El email es inválido.");
+      console.log("id_estado problem")
+      return false;
+    } 
+    */
+   /**
+    if( formulario.fechas.length == 0){
+      //throw new HttpErrors[401]("El email es inválido.");
+      console.log("fechas problem")
+      return false;
+    } 
     */
     return true;
   }
@@ -149,12 +181,10 @@ export class RegistroService {
     return await this.inmuebleRepository.findOne({where: {codigo: id}});
   }
 
-  /**
-  async ValidarInmueble(formulario: FormularioInmueble ){
-    return await this.inmuebleRepository.findOne({where: {id: id}});
+  async ValidarInmueble(id: string ){
+    return await this.inmuebleRepository.findById(id);
   }
-  */
-
+  
   async ValidarPersona(id: string){
     return await this.personaRepository.findOne({where: {id: id}});
   }
@@ -183,13 +213,23 @@ export class RegistroService {
       "valor": formulario.valor,
       "fotografia": formulario.fotografia,
       "id_estado": 6,
-      "id_tipoIn": formulario.id_tipoIn,
-      "id_tipoOf": formulario.id_tipoOf,
-      "id_ciudad": formulario.id_ciudad,
-      "id_asesor": formulario.id_asesor,
+      "id_tipoIn": formulario.tipoIn,
+      "id_tipoOf": formulario.tipoOf,
+      "id_ciudad": formulario.ciudad,
+      "id_asesor": formulario.asesor,
       "videoYoutube": formulario.videoYoutube
     });
     return i;
+  }
+
+  async RegistrarSolicitud(formulario: FormularioSolicitud){
+    let s = await this.solicitudRepository.create({
+      "comentarios": formulario.comentarios ? formulario.comentarios : "",
+      "id_cliente": formulario.cliente,
+      "id_inmueble": formulario.inmueble,
+      "id_estado": 1,
+    });
+    return s;
   }
 
 }
