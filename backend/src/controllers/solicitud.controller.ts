@@ -1,3 +1,4 @@
+import { service } from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -16,35 +17,75 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
-import {Solicitud} from '../models';
-import {SolicitudRepository} from '../repositories';
+import {Documento, Fecha, FormularioSolicitud, Solicitud} from '../models';
+import {DocumentoRepository, FechaRepository, SolicitudRepository} from '../repositories';
+import { RegistroService, NotificacionService } from '../services';
 
 export class SolicitudController {
   constructor(
     @repository(SolicitudRepository)
     public solicitudRepository : SolicitudRepository,
+
+    @repository(FechaRepository)
+    public fechaRepository : FechaRepository,
+
+    @repository(DocumentoRepository)
+    public documentoRepository : FechaRepository,
+
+    @service(RegistroService)
+    public registroService : RegistroService,
+
+    @service(NotificacionService)
+    public notificacionService : NotificacionService,
+    
   ) {}
 
   @post('/solicitudes')
   @response(200, {
     description: 'Solicitud model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Solicitud)}},
+    content: {'application/json': {schema: getModelSchemaRef(FormularioSolicitud)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Solicitud, {
+          schema: getModelSchemaRef(FormularioSolicitud, {
             title: 'NewSolicitud',
-            exclude: ['id'],
+            //exclude: ['id'],
           }),
         },
       },
     })
-    solicitud: Omit<Solicitud, 'id'>,
+    formulario: FormularioSolicitud,
   ): Promise<Solicitud> {
-    return this.solicitudRepository.create(solicitud);
+    if(await this.registroService.ValidarDatosSolicitud(formulario)){
+      let existe = await this.solicitudRepository.find({where: {id_cliente: formulario.cliente, id_inmueble: formulario.inmueble}});
+      if(existe.length == 0){
+        let solicitud: Solicitud = await this.registroService.RegistrarSolicitud(formulario);
+        
+        let fechas: Fecha [] = new Array ();
+        formulario.fechas.forEach(element => {
+          let f: Fecha = new Fecha();
+          f.fecha = element;
+          f.id_solicitud = solicitud.id;
+          fechas.push(f);
+        });
+        fechas.forEach(element => {
+          this.fechaRepository.create(element);
+        });
+
+        await this.notificacionService.NotificarSolicitudEnviada(solicitud);
+        
+        return solicitud;
+      } else {
+        throw new HttpErrors[401]("El cliente ya tiene registrada una solicitud para ese inmueble");
+      }
+    } else {
+      throw new HttpErrors[401]("Error en los datos ingresados");
+    }
+    //return this.solicitudRepository.create(solicitud);
   }
 
   @get('/solicitudes/count')
@@ -120,12 +161,44 @@ export class SolicitudController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Solicitud, {partial: true}),
+          schema: getModelSchemaRef(FormularioSolicitud, {partial: true}),
         },
       },
     })
-    solicitud: Solicitud,
+    formulario: FormularioSolicitud,
   ): Promise<void> {
+    let s = await this.solicitudRepository.findById(id);
+    let solicitud: Solicitud = new Solicitud();
+    if(formulario.comentarios)
+      solicitud.comentarios = formulario.comentarios;
+    else
+      solicitud.comentarios = s.comentarios;
+    if(formulario.cliente)
+      solicitud.id_cliente = formulario.cliente;
+    else
+      solicitud.id_cliente = s.id_cliente;
+    if(formulario.inmueble)
+      solicitud.id_inmueble = formulario.inmueble;
+    else
+      solicitud.id_inmueble = s.id_inmueble;
+    if(formulario.estado)
+      solicitud.id_estado = formulario.estado;
+    else
+      solicitud.id_estado = s.id_estado;
+
+    if(formulario.fechas && formulario.fechas.length != 0){
+      let fechas = await this.fechaRepository.find({where: {id_solicitud: id}});
+      fechas.forEach(element => {
+        this.fechaRepository.deleteById(element.id);
+      }); 
+      formulario.fechas.forEach(element => {
+        let f: Fecha = new Fecha();
+        f.fecha = element;
+        f.id_solicitud = solicitud.id;
+        this.fechaRepository.create(f);
+      });
+    }
+
     await this.solicitudRepository.updateById(id, solicitud);
   }
 
@@ -145,6 +218,15 @@ export class SolicitudController {
     description: 'Solicitud DELETE success',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
+    let fechas = await this.fechaRepository.find({where: {id_solicitud: id}});
+    fechas.forEach(element => {
+      this.fechaRepository.deleteById(element.id);
+    });
+    let docs = await this.documentoRepository.find({where: {id_solicitud: id}});
+    docs.forEach(element => {
+      this.documentoRepository.deleteById(element.id);
+    });
+
     await this.solicitudRepository.deleteById(id);
   }
 }

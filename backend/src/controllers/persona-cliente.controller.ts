@@ -136,19 +136,43 @@ export class PersonaClienteController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Persona, {partial: true}),
+          schema: getModelSchemaRef(FormularioRegistro, {partial: true}),
         },
       },
     })
-    persona: Persona,
+    formulario: FormularioRegistro,
   ): Promise<void> {
     let cliente = await this.personaRepository.findById(id);
+    let persona: Persona = new Persona();
+    persona.id = cliente.id;
+    /**
+    if (formulario.id)
+      throw new HttpErrors[401]("No se puede modificar el id");
+    persona.id = cliente.id;
+    */
+    if (formulario.tipoId)
+      persona.tipoId = formulario.tipoId;
+    else
+      persona.tipoId = cliente.tipoId;
+    if (formulario.nombres)
+      persona.nombres = formulario.nombres;
+    else
+      persona.nombres = cliente.nombres;
+    if (formulario.apellidos)
+      persona.apellidos = formulario.apellidos;
+    else
+      persona.apellidos = cliente.apellidos;
+    if (formulario.celular)
+      persona.celular = formulario.celular;
+    else
+      persona.celular = cliente.celular;
+    if (formulario.email)
+      persona.id_email = cliente.id_email;
     if (cliente.id_rol == 3)
       await this.personaRepository.updateById(id, persona);
     else
       throw new HttpErrors[401]("El ID no corresponde a un cliente.")
   }
-
 
   @del('/clientes/{id}')
   @response(204, {

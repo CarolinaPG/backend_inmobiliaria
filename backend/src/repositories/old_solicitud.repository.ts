@@ -1,4 +1,4 @@
-import {Getter, inject} from '@loopback/core';
+import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, HasManyRepositoryFactory, BelongsToAccessor} from '@loopback/repository';
 import {MongodbDataSource} from '../datasources';
 import {Solicitud, SolicitudRelations, Fecha, Documento, Estado} from '../models';
@@ -19,7 +19,7 @@ export class SolicitudRepository extends DefaultCrudRepository<
   public readonly estado: BelongsToAccessor<Estado, typeof Solicitud.prototype.id>;
 
   constructor(
-    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('FechaRepository') protected fechaRepositoryGetter: Getter<FechaRepository>, @repository.getter('DocumentoRepository') protected documentoRepositoryGetter: Getter<DocumentoRepository>, @repository.getter('EstadoRepository') protected estadoRepositoryGetter: Getter<EstadoRepository>, 
+    @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('FechaRepository') protected fechaRepositoryGetter: Getter<FechaRepository>, @repository.getter('DocumentoRepository') protected documentoRepositoryGetter: Getter<DocumentoRepository>, @repository.getter('EstadoRepository') protected estadoRepositoryGetter: Getter<EstadoRepository>,
   ) {
     super(Solicitud, dataSource);
     this.estado = this.createBelongsToAccessorFor('estado', estadoRepositoryGetter,);
