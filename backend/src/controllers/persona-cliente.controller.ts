@@ -98,7 +98,11 @@ export class PersonaClienteController {
       },
     },
   })
-  async findClientes( ): Promise<Persona[]> {
+  async findClientes( 
+    //@param.filter(Inmueble) filter?: Filter<Inmueble>,
+    //@param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
+    @param.filter(Persona) filter?: Filter<Persona>
+  ): Promise<Persona[]> {
     let clientes = await this.personaRepository.find({where: {id_rol: 3}})
     return clientes;
   }
@@ -116,7 +120,7 @@ export class PersonaClienteController {
   })
   async findByIdClientes(
     @param.path.string('id') id: string,
-    //@param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
+    @param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
   ): Promise<Persona> {
     let cliente =  await this.personaRepository.findOne({where: {id: id, id_rol: 3}} );
     if (cliente)

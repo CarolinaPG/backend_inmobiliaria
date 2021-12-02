@@ -91,6 +91,7 @@ export class PersonaAsesorController {
 
         //Debe confirmar por correo si acepta o no
         //hash = formulario de aceptación
+        await this.notificacionService.NotificarCredencialesAsesor(formulario, clave);
         await this.emailRepository.updateById(correo.id, {
           "hash": ""
         });

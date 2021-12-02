@@ -20,13 +20,16 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import {FormularioInmueble, Inmueble} from '../models';
-import {InmuebleRepository} from '../repositories';
+import {DepartamentoRepository, InmuebleRepository} from '../repositories';
 import { NotificacionService, RegistroService } from '../services';
 
 export class InmuebleController {
   constructor(
     @repository(InmuebleRepository)
     public inmuebleRepository : InmuebleRepository,
+
+    @repository(DepartamentoRepository)
+    public departamentoRepository : DepartamentoRepository,
 
     @service(NotificacionService)
     public notificacionService : NotificacionService,
@@ -74,7 +77,9 @@ export class InmuebleController {
   ): Promise<Inmueble> {
     if(await this.registroService.ValidarDatosInmueble(formulario)){
       try{
-        return await this.registroService.RegistrarInmueble(formulario);
+        let i = await this.registroService.RegistrarInmueble(formulario);
+        i.departamento = (await this.departamentoRepository.findById(formulario.departamento != undefined? formulario.departamento: 0)).nombre;
+        return i;
       } catch (e){
         throw new HttpErrors[401]("Error creando el inmueble");
       }

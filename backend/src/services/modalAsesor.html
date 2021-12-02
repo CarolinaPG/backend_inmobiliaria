@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Último minificado bootstrap css -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<!-- jQuery libraria incluida -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<!-- Último minificado bootstrap js -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+.btn-success{margin: 10px;}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>Credenciales de Asesor</h1>
+  <p>Hola ${formulario.nombres} ${formulario.apellidos}! ¿Cómo te encuentras el día de hoy?<br><br>
+    Queremos que seas parte de nuestro equipo como un <strong>Asesor</strong>.<br><br>
+    Tus credenciales de acceso a "Hogar Colombia" son:<br>
+    <div class="container">
+	    <strong>Usuario:</strong> ${formulario.email}<br>
+    	<strong>Contraseña:</strong> ${clave}<br>
+	</div>
+    <br>Por favor déjanos saber si aceptas:<br>
+  </p>
+
+
+<div class="container">
+<!-- Button modal -->
+<button class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalForm">
+    Decide aquí
+</button>
+    
+<!-- Modal -->
+<div class="modal fade" id="modalForm" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Cabecera -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Cerrar</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Decisión de ser Asesor</h4>
+            </div>
+            
+            <!-- Modal Cuerpo contenido -->
+            <div class="modal-body">
+                <p class="statusMsg"></p>
+                ¿Quieres ser parte de nuestro equipo de trabajo como asesor?
+            </div>
+            
+            <!-- Modal Pie de Página -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary submitBtn" onclick="EnviarFormulario()">Enviar Ahora</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

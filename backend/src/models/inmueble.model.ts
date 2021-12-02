@@ -46,6 +46,12 @@ export class Inmueble extends Entity {
   })
   videoYoutube?: string;
 
+  @property({
+    type: 'string',
+    default: "",
+  })
+  departamento: string;
+
   @belongsTo(() => Estado, {name: 'estado'})
   id_estado: number;
 

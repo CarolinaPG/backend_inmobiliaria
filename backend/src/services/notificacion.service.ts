@@ -88,23 +88,44 @@ export class NotificacionService {
     let destino = formulario.email;
     let asunto = 'Credenciales de Asesor';
     let contenido = `
+    <!DOCTYPE html>
     <html>
-      <head></head>
-      <body>
-        <p>Hola ${formulario.nombres} ${formulario.apellidos}!<br><br>
-           ¿Cómo te encuentras el día de hoy?<br><br>
-           Es un placer para nosotros tenerte como parte fundamental de nuestro equipo de trabajo como el mejor "Asesor".<br>
-           Por ello te entregamos tus credenciales de acceso a "Hogar Colombia"<br>
-           Nombre de usuario: ${formulario.email}<br>
-           Contraseña: ${clave}<br><br>
-        </p>
-        
-        <p> 
-            Has click <a href="https://misiontic.ucaldas.edu.co">aquí</a> para confirmar tu decisión.
-        </p>
-      </body>
+    <head>
+    <!-- Último minificado bootstrap css -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery libraria incluida -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <!-- Último minificado bootstrap js -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    .btn-success{margin: 10px;}
+    </style>
+    </head>
+    <body>
+    
+    <div class="container">
+    <h1>Credenciales de Asesor</h1>
+      <p>Hola ${formulario.nombres} ${formulario.apellidos}! ¿Cómo te encuentras el día de hoy?<br><br>
+        Queremos que seas parte de nuestro equipo como un <strong>Asesor</strong>.<br><br>
+        Tus credenciales de acceso a "Hogar Colombia" son:<br>
+        <div class="container">
+          <strong>Usuario:</strong> ${formulario.email}<br>
+          <strong>Contraseña:</strong> ${clave}<br>
+      </div>
+        <br>Por favor déjanos saber si aceptas:<br>
+      </p>
+    
+    
+    <!-- Button modal -->
+    <button class="btn btn-success btn-lg" data-toggle="modal" data-target="#modalForm">
+        Decide aquí
+    </button>
+    
+    </div>
+
+    </body>
     </html>
-    `
+  `
 
     fetch(`${Llaves.urlServicioNotificaciones}/envio-correo?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
       .then((data: any) => {
@@ -141,35 +162,15 @@ export class NotificacionService {
   }
 
   async NotificarSolicitudEnviada(solicitud: Solicitud) {
-    console.log(`Solicitud:`);
-    console.log(solicitud);
     let inmueble = await this.inmuebleRepository.findOne({where: {id: solicitud.id_inmueble}});
-    console.log(`Inmueble:`);
-    console.log(inmueble);
     let tipoI = await this.tipoInmuebleRepository.findOne({where: {id: inmueble?.id_tipoIn}});
-    console.log(`tipoI:`);
-    console.log(tipoI);
     let tipoO = await this.tipoOfertaRepository.findOne({where: {id: inmueble?.id_tipoOf}});
-    console.log(`tipoO:`);
-    console.log(tipoO);
     let estado = await this.estadoRepository.findOne({where: {id: solicitud.id_estado}});
-    console.log(`estado:`);
-    console.log(estado);
     let fechas = await this.fechasRepository.find({where: {id_solicitud: solicitud.id}});
-    console.log(`fechas:`);
-    console.log(fechas);
     let cliente = await this.personaRepository.findOne({where: {id: solicitud.id_cliente}});
-    console.log(`cliente:`);
-    console.log(cliente);
     let clienteEmail = await this.emailRepository.findOne({where: {id: cliente?.id_email}});
-    console.log(`clienteEmail:`);
-    console.log(clienteEmail);
     let asesor = await this.personaRepository.findOne({where: {id: inmueble?.id_asesor}});
-    console.log(`asesor:`);
-    console.log(asesor);
     let destino = (await this.emailRepository.findOne({where: {id: asesor?.id_email}}))?.email;
-    console.log(`destino:`);
-    console.log(destino);
     let asunto = 'Notificación de una nueva solicitud enviada';
     let contenido = `
     <html>

@@ -3,3 +3,9 @@ Repositorio en el que se almacenará el desarrollo del backend para el proyecto 
 
 Para clonar el repositorio se utilizará el comando:
 > git clone https://github.com/CarolinaPG/backend_inmobiliaria.git
+
+> cd backed_inmobiliaria/backend
+
+> npm install
+
+> npm start

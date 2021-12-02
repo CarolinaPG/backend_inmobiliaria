@@ -83,6 +83,9 @@ export class PersonaController {
     let p = await this.autenticacionService.IdentificarPersona(credenciales.usuario, credenciales.clave);
     if (p) {
       let em = await this.emailRepository.findById(p.id_email);
+      console.log(em);
+      console.log(em.estado);
+      console.log(p.id_rol);
       if(p.id_rol == 3 && em.estado == "UNVERIFIED")
         throw new HttpErrors[401]("Debe verificar su email primero");
       else {
@@ -141,7 +144,7 @@ export class PersonaController {
     } 
   }
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @post('/personas')
   @response(200, {
     description: 'Persona model instance',
@@ -174,7 +177,7 @@ export class PersonaController {
     return this.personaRepository.count(where);
   }
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @get('/personas')
   @response(200, {
     description: 'Array of Persona model instances',

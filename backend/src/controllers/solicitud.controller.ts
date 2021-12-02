@@ -114,7 +114,27 @@ export class SolicitudController {
   async find(
     @param.filter(Solicitud) filter?: Filter<Solicitud>,
   ): Promise<Solicitud[]> {
-    return this.solicitudRepository.find(filter);
+/**
+    return this.solicitudRepository.find({
+      include: {
+        relation: 'id_cliente',
+        scope: {
+          fields: ['nombres', 'apellidos', 'id_email'],
+          include:{
+            relation: 'email',
+            scope: {
+              where: {email: 'crpulidog@gmail.com'}
+            }
+          }
+        }
+      }
+    }, function() {
+      console.log("Post solicitudes")
+    });
+*/
+    return this.solicitudRepository.find(filter, {
+      include: [{relation: 'fechas'}],
+    });    
   }
 
   @patch('/solicitudes')

@@ -1,5 +1,5 @@
 import {Model, model, property} from '@loopback/repository';
-import { Documento } from '.';
+import { Documento, Fecha } from '.';
 
 @model()
 export class FormularioSolicitud extends Model {
@@ -34,14 +34,14 @@ export class FormularioSolicitud extends Model {
   })
   fechas: string[];
 
-  /**
+
   @property({
     type: 'array',
-    itemType: 'Documento',
+    itemType: 'object',
     default: [],
   })
   documentos?: Documento[];
-  */
+
 
   constructor(data?: Partial<FormularioSolicitud>) {
     super(data);

@@ -3,7 +3,7 @@ import { repository } from '@loopback/repository';
 import { HttpErrors } from '@loopback/rest';
 import { Fecha, FormularioInmueble, FormularioSolicitud } from '../models';
 import { FormularioRegistro } from '../models/formulario-registro.model';
-import { CiudadRepository, EmailRepository, EstadoRepository, InmuebleRepository, PersonaRepository, SolicitudRepository, TipoInmuebleRepository, TipoOfertaRepository } from '../repositories';
+import { CiudadRepository, DepartamentoRepository, EmailRepository, EstadoRepository, InmuebleRepository, PersonaRepository, SolicitudRepository, TipoInmuebleRepository, TipoOfertaRepository } from '../repositories';
 
 @injectable({scope: BindingScope.TRANSIENT})
 export class RegistroService {
@@ -19,6 +19,9 @@ export class RegistroService {
 
     @repository (CiudadRepository)
     public ciudadRepository: CiudadRepository,
+
+    @repository (DepartamentoRepository)
+    public departamentoRepository: DepartamentoRepository,
 
     @repository (EstadoRepository)
     public estadoRepository: EstadoRepository,
@@ -207,7 +210,7 @@ export class RegistroService {
   }
 
   async RegistrarInmueble(formulario: FormularioInmueble){
-    let i = await this.inmuebleRepository.create({
+    let datos = await this.inmuebleRepository.create({
       "codigo": formulario.codigo,
       "direccion": formulario.direccion,
       "valor": formulario.valor,
@@ -216,10 +219,11 @@ export class RegistroService {
       "id_tipoIn": formulario.tipoIn,
       "id_tipoOf": formulario.tipoOf,
       "id_ciudad": formulario.ciudad,
+      "departamento": (await this.departamentoRepository.findById(formulario.departamento != undefined?formulario.departamento : 0)).nombre,
       "id_asesor": formulario.asesor,
       "videoYoutube": formulario.videoYoutube
     });
-    return i;
+    return datos;
   }
 
   async RegistrarSolicitud(formulario: FormularioSolicitud){
