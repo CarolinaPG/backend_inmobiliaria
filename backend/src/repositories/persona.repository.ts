@@ -13,11 +13,6 @@ export class PersonaRepository extends DefaultCrudRepository<
   PersonaRelations
 > {
 
-  public readonly inmuebles: HasManyThroughRepositoryFactory<Inmueble, typeof Inmueble.prototype.id,
-          Solicitud,
-          typeof Persona.prototype.id
-        >;
-
   public readonly email: BelongsToAccessor<Email, typeof Persona.prototype.id>;
 
   public readonly rol: BelongsToAccessor<Rol, typeof Persona.prototype.id>;
@@ -30,7 +25,5 @@ export class PersonaRepository extends DefaultCrudRepository<
     this.registerInclusionResolver('rol', this.rol.inclusionResolver);
     this.email = this.createBelongsToAccessorFor('email', emailRepositoryGetter,);
     this.registerInclusionResolver('email', this.email.inclusionResolver);
-    this.inmuebles = this.createHasManyThroughRepositoryFactoryFor('inmuebles', inmuebleRepositoryGetter, solicitudRepositoryGetter,);
-    this.registerInclusionResolver('inmuebles', this.inmuebles.inclusionResolver);
   }
 }

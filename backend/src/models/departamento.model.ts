@@ -19,6 +19,8 @@ export class Departamento extends Entity {
 
   @hasMany(() => Ciudad, {keyTo: 'id_depa'})
   ciudades: Ciudad[];
+  //@hasMany(() => Ciudad)
+  //ciudades: Ciudad[];
 
   constructor(data?: Partial<Departamento>) {
     super(data);

@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, ObjectType, property, belongsTo} from '@loopback/repository';
+import { isSchemaObject } from 'openapi3-ts';
+import { Departamento } from './departamento.model';
 
 @model()
 export class Ciudad extends Entity {
@@ -16,10 +18,8 @@ export class Ciudad extends Entity {
   })
   nombre: string;
 
-  @property({
-    type: 'number',
-  })
-  id_depa?: number;
+  @belongsTo(() => Departamento, {name: 'depa'})
+  id_depa: number;
 
   constructor(data?: Partial<Ciudad>) {
     super(data);

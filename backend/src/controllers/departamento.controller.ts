@@ -1,4 +1,3 @@
-import { authenticate } from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -21,7 +20,6 @@ import {
 import {Departamento} from '../models';
 import {DepartamentoRepository} from '../repositories';
 
-//@authenticate("admin")
 export class DepartamentoController {
   constructor(
     @repository(DepartamentoRepository)
@@ -75,7 +73,9 @@ export class DepartamentoController {
   async find(
     @param.filter(Departamento) filter?: Filter<Departamento>,
   ): Promise<Departamento[]> {
-    return this.departamentoRepository.find(filter);
+    return this.departamentoRepository.find(filter? filter : {include: [
+      {relation: 'ciudades'},
+    ]});  
   }
 
   @patch('/departamentos')
@@ -110,7 +110,9 @@ export class DepartamentoController {
     @param.path.number('id') id: number,
     @param.filter(Departamento, {exclude: 'where'}) filter?: FilterExcludingWhere<Departamento>
   ): Promise<Departamento> {
-    return this.departamentoRepository.findById(id, filter);
+    return this.departamentoRepository.findById(id, filter ? filter: {include: [
+      {relation: 'ciudades'},
+    ]});
   }
 
   @patch('/departamentos/{id}')

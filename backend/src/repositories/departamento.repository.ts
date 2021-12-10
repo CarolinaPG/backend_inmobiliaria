@@ -11,6 +11,7 @@ export class DepartamentoRepository extends DefaultCrudRepository<
 > {
 
   public readonly ciudades: HasManyRepositoryFactory<Ciudad, typeof Departamento.prototype.id>;
+  //public readonly ciudades: HasManyRepositoryFactory<Ciudad, typeof Departamento.prototype.id>;
 
   constructor(
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('CiudadRepository') protected ciudadRepositoryGetter: Getter<CiudadRepository>,
@@ -18,5 +19,7 @@ export class DepartamentoRepository extends DefaultCrudRepository<
     super(Departamento, dataSource);
     this.ciudades = this.createHasManyRepositoryFactoryFor('ciudades', ciudadRepositoryGetter,);
     this.registerInclusionResolver('ciudades', this.ciudades.inclusionResolver);
+    //this.ciudades = this.createHasManyRepositoryFactoryFor('ciudades', ciudadRepositoryGetter,);
+    //this.registerInclusionResolver('ciudades', this.ciudades.inclusionResolver);
   }
 }

@@ -61,11 +61,11 @@ export class Inmueble extends Entity {
   @belongsTo(() => TipoOferta, {name: 'tipoO'})
   id_tipoOf: number;
 
-  @belongsTo(() => Ciudad, {name: 'ciudad'})
-  id_ciudad: number;
-
   @belongsTo(() => Persona, {name: 'asesor'})
   id_asesor: string;
+
+  @belongsTo(() => Ciudad, {name: 'ciudad'})
+  id_ciudad: number;
 
   constructor(data?: Partial<Inmueble>) {
     super(data);

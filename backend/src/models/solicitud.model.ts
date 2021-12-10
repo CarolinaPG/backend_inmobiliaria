@@ -2,6 +2,8 @@ import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository'
 import {Fecha} from './fecha.model';
 import {Documento} from './documento.model';
 import {Estado} from './estado.model';
+import {Persona} from './persona.model';
+import {Inmueble} from './inmueble.model';
 
 @model()
 export class Solicitud extends Entity {
@@ -17,25 +19,20 @@ export class Solicitud extends Entity {
   })
   comentarios?: string;
 
-  @property({
-    type: 'string',
-  })
-  id_cliente?: string;
-
-  @property({
-    type: 'string',
-  })
-  id_inmueble?: string;
-
-  @belongsTo(() => Estado, {name: 'estado'})
-  id_estado: number;
-
   @hasMany(() => Fecha, {keyTo: 'id_solicitud'})
   fechas: Fecha[];
 
   @hasMany(() => Documento, {keyTo: 'id_solicitud'})
   documentos: Documento[];
 
+  @belongsTo(() => Estado, {name: 'estado'})
+  id_estado: number;
+
+  @belongsTo(() => Persona, {name: 'cliente'})
+  id_cliente: string;
+
+  @belongsTo(() => Inmueble, {name: 'predio'})
+  id_inmueble: string;
   constructor(data?: Partial<Solicitud>) {
     super(data);
   }

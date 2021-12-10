@@ -1,5 +1,4 @@
 export * from './ping.controller';
-export * from './persona-inmueble.controller';
 export * from './solicitud-fecha.controller';
 export * from './solicitud-documento.controller';
 export * from './departamento-ciudad.controller';
@@ -27,3 +26,6 @@ export * from './departamento.controller';
 export * from './persona-cliente.controller';
 export * from './persona-asesor.controller';
 export * from './persona-administrador.controller';
+export * from './ciudad-departamento.controller';
+export * from './solicitud-persona.controller';
+export * from './solicitud-inmueble.controller';

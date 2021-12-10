@@ -36,26 +36,7 @@ export class InmuebleController {
 
     @service(RegistroService)
     public registroService : RegistroService,
-    
   ) {}
-
-/**
-  @get('/inmuebles/tipo-oferta/{tipoOferta}')
-  @response(200, {
-    description: 'Inmueble model instance',
-    content: {
-      'application/json': {
-        schema: getModelSchemaRef(Inmueble, {includeRelations: true}),
-      },
-    },
-  })
-  async findByTipoOferta(
-    @param.path.string('id') id: string,
-    @param.filter(Inmueble, {exclude: 'where'}) filter?: FilterExcludingWhere<Inmueble>
-  ): Promise<Inmueble> {
-    return this.inmuebleRepository.findById(id, filter);
-  }
-*/
 
   @post('/inmuebles')
   @response(200, {
@@ -115,7 +96,25 @@ export class InmuebleController {
   async find(
     @param.filter(Inmueble) filter?: Filter<Inmueble>,
   ): Promise<Inmueble[]> {
-    return this.inmuebleRepository.find(filter);
+    let data = this.inmuebleRepository.find(filter? filter : {include: [
+      {relation: 'tipoIn'},
+      {relation: 'tipoO',},
+      {relation: 'asesor',},
+      {relation: 'estado',},
+      {
+        relation: 'ciudad',
+        //scope: {
+        //  fields: ['id', 'nombre'],
+        //  include: {
+        //    relation: 'depa',
+        //    //scope:{
+        //    //  fields: ['id', 'nombre']
+        //    //}
+        //  }
+        //}
+      },
+    ] });
+    return data;
   }
 
   @patch('/inmuebles')
@@ -150,7 +149,25 @@ export class InmuebleController {
     @param.path.string('id') id: string,
     @param.filter(Inmueble, {exclude: 'where'}) filter?: FilterExcludingWhere<Inmueble>
   ): Promise<Inmueble> {
-    return this.inmuebleRepository.findById(id, filter);
+    let data =  this.inmuebleRepository.findById(id, filter? filter : {include: [
+      {relation: 'tipoIn'},
+      {relation: 'tipoO',},
+      {relation: 'asesor',},
+      {relation: 'estado',},
+      {
+        relation: 'ciudad',
+        //scope: {
+        //  fields: ['id', 'nombre'],
+        //  include: {
+        //    relation: 'depa',
+        //    //scope:{
+        //    //  fields: ['id', 'nombre']
+        //    //}
+        //  }
+        //}
+      },
+    ] });
+    return data;
   }
 
   @patch('/inmuebles/{id}')

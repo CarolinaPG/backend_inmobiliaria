@@ -99,11 +99,15 @@ export class PersonaClienteController {
     },
   })
   async findClientes( 
-    //@param.filter(Inmueble) filter?: Filter<Inmueble>,
     //@param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
     @param.filter(Persona) filter?: Filter<Persona>
   ): Promise<Persona[]> {
-    let clientes = await this.personaRepository.find({where: {id_rol: 3}})
+    let clientes = await this.personaRepository.find(filter? filter : {include: [
+      {relation: 'email'},
+      {relation: 'rol',},
+    ],
+      where: {id_rol: 3}, 
+    });
     return clientes;
   }
 
@@ -120,13 +124,16 @@ export class PersonaClienteController {
   })
   async findByIdClientes(
     @param.path.string('id') id: string,
-    @param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
+//    @param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona> 
+      @param.filter(Persona) filter?: Filter<Persona>
   ): Promise<Persona> {
-    let cliente =  await this.personaRepository.findOne({where: {id: id, id_rol: 3}} );
-    if (cliente)
-      return cliente;
-    else
-      throw new HttpErrors[401]("Error encontrando al cliente.")
+    let cliente =  await this.personaRepository.findById(id, filter? filter : {include: [
+      {relation: 'email'},
+      {relation: 'rol',},
+    ],
+      where: {id_rol: 3}, 
+    });
+    return cliente;
   }
 
 
@@ -145,15 +152,11 @@ export class PersonaClienteController {
       },
     })
     formulario: FormularioRegistro,
+    @param.filter(Persona) filter?: Filter<Persona>
   ): Promise<void> {
-    let cliente = await this.personaRepository.findById(id);
+    let cliente = await this.personaRepository.findById(id, filter? filter : {where: {id_rol: 3}});
     let persona: Persona = new Persona();
     persona.id = cliente.id;
-    /**
-    if (formulario.id)
-      throw new HttpErrors[401]("No se puede modificar el id");
-    persona.id = cliente.id;
-    */
     if (formulario.tipoId)
       persona.tipoId = formulario.tipoId;
     else
@@ -172,10 +175,7 @@ export class PersonaClienteController {
       persona.celular = cliente.celular;
     if (formulario.email)
       persona.id_email = cliente.id_email;
-    if (cliente.id_rol == 3)
-      await this.personaRepository.updateById(id, persona);
-    else
-      throw new HttpErrors[401]("El ID no corresponde a un cliente.")
+    await this.personaRepository.updateById(id, persona);
   }
 
   @del('/clientes/{id}')

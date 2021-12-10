@@ -1,14 +1,27 @@
 import { service } from '@loopback/core';
-import { Count, CountSchema, Filter, FilterExcludingWhere, repository, Where, } from '@loopback/repository';
-import { post, param, get, getModelSchemaRef, patch, put, del, requestBody, response, HttpErrors, } from '@loopback/rest';
-import { Persona } from '../models';
-//import { FormularioRegistro } from '../models/formulario-registro.model';
-import { Credenciales } from '../models';
-import { PersonaRepository, EmailRepository, } from '../repositories';
+import {
+  Count,
+  CountSchema,
+  Filter,
+  FilterExcludingWhere,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  post,
+  param,
+  get,
+  getModelSchemaRef,
+  patch,
+  put,
+  del,
+  requestBody,
+  response,
+  HttpErrors,
+} from '@loopback/rest';
+import {Credenciales, Persona} from '../models';
+import {EmailRepository, PersonaRepository} from '../repositories';
 import { AutenticacionService, NotificacionService, RegistroService } from '../services';
-import { authenticate } from '@loopback/authentication';
-//import { Llaves } from '../config/llaves';
-//import { Console } from 'console';
 
 export class PersonaController {
   constructor(
@@ -26,11 +39,14 @@ export class PersonaController {
 
     @service(RegistroService)
     public registroService : RegistroService,
-
-    
   ) {}
 
-
+  /**
+   * Se encarga del token donde el cliente debe verificar su email para 
+   * dejarlo iniciar sesión
+   * @param token 
+   * @returns 
+   */
   //@authenticate("cliente")
   @get('/verifyEmail/{token}')
   @response(200, {
@@ -65,7 +81,8 @@ export class PersonaController {
   }
 
   /**
-   * Identificar personas y crear un token para el usuario y contraseña
+   * Se encarga del inicio de sesión: identificar personas con sus credenciales
+   * de acceso (usuario y contraseña)
    * @param credenciales 
    * @returns 
    */
@@ -107,6 +124,13 @@ export class PersonaController {
     }
   }
 
+  /**
+   * Recuperar contraseña donde requiere el usuario, osea el email, y 
+   * pasar la contraseña en vacío "". Eso para utilizar el mismo modelo 
+   * de credenciales
+   * @param credenciales 
+   * @returns 
+   */
   @patch('/recuperarClave')
   @response(200, {
         description: "Recuperación de Clave",
@@ -144,7 +168,6 @@ export class PersonaController {
     } 
   }
 
-  //@authenticate("admin")
   @post('/personas')
   @response(200, {
     description: 'Persona model instance',
@@ -177,7 +200,6 @@ export class PersonaController {
     return this.personaRepository.count(where);
   }
 
-  //@authenticate("admin")
   @get('/personas')
   @response(200, {
     description: 'Array of Persona model instances',
@@ -196,7 +218,6 @@ export class PersonaController {
     return this.personaRepository.find(filter);
   }
 
-  //@authenticate("admin")
   @patch('/personas')
   @response(200, {
     description: 'Persona PATCH success count',
@@ -216,7 +237,6 @@ export class PersonaController {
     return this.personaRepository.updateAll(persona, where);
   }
 
-  @authenticate("admin")
   @get('/personas/{id}')
   @response(200, {
     description: 'Persona model instance',
@@ -233,7 +253,6 @@ export class PersonaController {
     return this.personaRepository.findById(id, filter);
   }
 
-  @authenticate("admin")
   @patch('/personas/{id}')
   @response(204, {
     description: 'Persona PATCH success',

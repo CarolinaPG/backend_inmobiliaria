@@ -1,5 +1,5 @@
 import {Model, model, property} from '@loopback/repository';
-import { Documento, Fecha } from '.';
+import {Documento, Estado, Inmueble, Persona} from '.';
 
 @model()
 export class FormularioSolicitud extends Model {
@@ -13,19 +13,37 @@ export class FormularioSolicitud extends Model {
     type: 'string',
     required: true,
   })
-  cliente: string;
+  id_cliente: string;
+
+  @property({
+    type: 'object',
+    //default: 1,
+  })
+  cliente?: Persona;
 
   @property({
     type: 'string',
     required: true,
   })
-  inmueble: string;
+  id_inmueble: string;
+
+  @property({
+    type: 'object',
+    //required: true,
+  })
+  inmueble: Inmueble;
 
   @property({
     type: 'number',
     default: 1,
   })
-  estado?: number;
+  id_estado?: number;
+
+  @property({
+    type: 'object',
+    //default: 1,
+  })
+  estado?: Estado;
 
   @property({
     type: 'array',
@@ -33,7 +51,6 @@ export class FormularioSolicitud extends Model {
     required: true,
   })
   fechas: string[];
-
 
   @property({
     type: 'array',

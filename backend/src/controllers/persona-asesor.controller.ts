@@ -53,7 +53,7 @@ export class PersonaAsesorController {
    * @param formulario 
    * @returns 
    */
-   @authenticate("admin")
+   //@authenticate("admin")
    @post('/asesores')
   @response(200, {
     description: 'Persona model instance',
@@ -110,7 +110,7 @@ export class PersonaAsesorController {
   }
 
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @get('/asesores')
   @response(200, {
     description: 'Array of Persona model instances (tipo Asesor)',
@@ -123,14 +123,21 @@ export class PersonaAsesorController {
       },
     },
   })
-  async findAsesores( ): Promise<Persona[]> {
-    let asesores = await this.personaRepository.find({where: {id_rol: 2}})
+  async findAsesores(
+    @param.filter(Persona) filter?: Filter<Persona>
+  ): Promise<Persona[]> {
+    let asesores = await this.personaRepository.find(filter? filter : {include: [
+      {relation: 'email'},
+      {relation: 'rol',},
+    ],
+      where: {id_rol: 2}, 
+    });
     return asesores;
   }
 
 
 
-  @authenticate("admin")
+  //@authenticate("admin")
   @get('/asesores/{id}')
   @response(200, {
     description: 'Persona model instance (tipo Asesor)',
@@ -143,13 +150,16 @@ export class PersonaAsesorController {
   async findByIdAsesores(
     @param.path.string('id') id: string,
     //@param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
-  ): Promise<Persona> {
-    let asesor =  await this.personaRepository.findOne({where: {id: id, id_rol: 2}} );
-    if (asesor)
+    @param.filter(Persona) filter?: Filter<Persona>
+    ): Promise<Persona> {
+      let asesor =  await this.personaRepository.findById(id, filter? filter : {include: [
+        {relation: 'email'},
+        {relation: 'rol',},
+      ],
+        where: {id_rol: 3}, 
+      });
       return asesor;
-    else
-      throw new HttpErrors[401]("Error encontrando al asesor.")
-  }
+    }
 
 
   //@authenticate("admin", "asesor")
@@ -167,15 +177,11 @@ export class PersonaAsesorController {
       },
     })
     formulario: FormularioRegistro,
+    @param.filter(Persona) filter?: Filter<Persona>
   ): Promise<void> {
-    let asesor = await this.personaRepository.findById(id);
+    let asesor = await this.personaRepository.findById(id, filter? filter : {where: {id_rol: 2}});
     let persona: Persona = new Persona();
     persona.id = asesor.id;
-    /**
-    if (formulario.id)
-      throw new HttpErrors[401]("No se puede modificar el id");
-    persona.id = cliente.id;
-    */
     if (formulario.tipoId)
       persona.tipoId = formulario.tipoId;
     else
@@ -194,10 +200,7 @@ export class PersonaAsesorController {
       persona.celular = asesor.celular;
     if (formulario.email)
       persona.id_email = asesor.id_email;
-    if (asesor.id_rol == 2)
-      await this.personaRepository.updateById(id, persona);
-    else
-      throw new HttpErrors[401]("El ID no corresponde a un asesor.")
+    await this.personaRepository.updateById(id, persona);
   }
 
 

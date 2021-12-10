@@ -28,10 +28,10 @@ export class InmuebleRepository extends DefaultCrudRepository<
     @inject('datasources.mongodb') dataSource: MongodbDataSource, @repository.getter('EstadoRepository') protected estadoRepositoryGetter: Getter<EstadoRepository>, @repository.getter('TipoInmuebleRepository') protected tipoInmuebleRepositoryGetter: Getter<TipoInmuebleRepository>, @repository.getter('TipoOfertaRepository') protected tipoOfertaRepositoryGetter: Getter<TipoOfertaRepository>, @repository.getter('CiudadRepository') protected ciudadRepositoryGetter: Getter<CiudadRepository>, @repository.getter('PersonaRepository') protected personaRepositoryGetter: Getter<PersonaRepository>,
   ) {
     super(Inmueble, dataSource);
-    this.asesor = this.createBelongsToAccessorFor('asesor', personaRepositoryGetter,);
-    this.registerInclusionResolver('asesor', this.asesor.inclusionResolver);
     this.ciudad = this.createBelongsToAccessorFor('ciudad', ciudadRepositoryGetter,);
     this.registerInclusionResolver('ciudad', this.ciudad.inclusionResolver);
+    this.asesor = this.createBelongsToAccessorFor('asesor', personaRepositoryGetter,);
+    this.registerInclusionResolver('asesor', this.asesor.inclusionResolver);
     this.tipoO = this.createBelongsToAccessorFor('tipoO', tipoOfertaRepositoryGetter,);
     this.registerInclusionResolver('tipoO', this.tipoO.inclusionResolver);
     this.tipoIn = this.createBelongsToAccessorFor('tipoIn', tipoInmuebleRepositoryGetter,);

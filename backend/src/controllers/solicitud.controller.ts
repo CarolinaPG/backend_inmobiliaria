@@ -19,9 +19,9 @@ import {
   response,
   HttpErrors,
 } from '@loopback/rest';
-import {Documento, Fecha, FormularioSolicitud, Solicitud} from '../models';
+import {Fecha, FormularioSolicitud, Solicitud} from '../models';
 import {DocumentoRepository, FechaRepository, SolicitudRepository} from '../repositories';
-import { RegistroService, NotificacionService } from '../services';
+import { NotificacionService, RegistroService } from '../services';
 
 export class SolicitudController {
   constructor(
@@ -32,14 +32,13 @@ export class SolicitudController {
     public fechaRepository : FechaRepository,
 
     @repository(DocumentoRepository)
-    public documentoRepository : FechaRepository,
+    public documentoRepository : DocumentoRepository,
 
     @service(RegistroService)
     public registroService : RegistroService,
 
     @service(NotificacionService)
     public notificacionService : NotificacionService,
-    
   ) {}
 
   @post('/solicitudes')
@@ -61,7 +60,7 @@ export class SolicitudController {
     formulario: FormularioSolicitud,
   ): Promise<Solicitud> {
     if(await this.registroService.ValidarDatosSolicitud(formulario)){
-      let existe = await this.solicitudRepository.find({where: {id_cliente: formulario.cliente, id_inmueble: formulario.inmueble}});
+      let existe = await this.solicitudRepository.find({where: {id_cliente: formulario.id_cliente, id_inmueble: formulario.id_inmueble}});
       if(existe.length == 0){
         let solicitud: Solicitud = await this.registroService.RegistrarSolicitud(formulario);
         
@@ -88,17 +87,6 @@ export class SolicitudController {
     //return this.solicitudRepository.create(solicitud);
   }
 
-  @get('/solicitudes/count')
-  @response(200, {
-    description: 'Solicitud model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(
-    @param.where(Solicitud) where?: Where<Solicitud>,
-  ): Promise<Count> {
-    return this.solicitudRepository.count(where);
-  }
-
   @get('/solicitudes')
   @response(200, {
     description: 'Array of Solicitud model instances',
@@ -114,27 +102,24 @@ export class SolicitudController {
   async find(
     @param.filter(Solicitud) filter?: Filter<Solicitud>,
   ): Promise<Solicitud[]> {
-/**
-    return this.solicitudRepository.find({
-      include: {
-        relation: 'id_cliente',
-        scope: {
-          fields: ['nombres', 'apellidos', 'id_email'],
-          include:{
-            relation: 'email',
-            scope: {
-              where: {email: 'crpulidog@gmail.com'}
-            }
-          }
-        }
-      }
-    }, function() {
-      console.log("Post solicitudes")
-    });
-*/
-    return this.solicitudRepository.find(filter, {
-      include: [{relation: 'fechas'}],
-    });    
+    return this.solicitudRepository.find(filter ? filter: { include:[
+      {relation: 'fechas'},
+      {relation: 'documentos'},
+      {relation: 'estado'},
+      {relation: 'cliente'},
+      {relation: 'predio'},
+    ]});
+  }
+
+  @get('/solicitudes/count')
+  @response(200, {
+    description: 'Solicitud model count',
+    content: {'application/json': {schema: CountSchema}},
+  })
+  async count(
+    @param.where(Solicitud) where?: Where<Solicitud>,
+  ): Promise<Count> {
+    return this.solicitudRepository.count(where);
   }
 
   @patch('/solicitudes')
@@ -194,15 +179,15 @@ export class SolicitudController {
     else
       solicitud.comentarios = s.comentarios;
     if(formulario.cliente)
-      solicitud.id_cliente = formulario.cliente;
+      solicitud.id_cliente = formulario.id_cliente;
     else
       solicitud.id_cliente = s.id_cliente;
     if(formulario.inmueble)
-      solicitud.id_inmueble = formulario.inmueble;
+      solicitud.id_inmueble = formulario.id_inmueble;
     else
       solicitud.id_inmueble = s.id_inmueble;
-    if(formulario.estado)
-      solicitud.id_estado = formulario.estado;
+    if(formulario.id_estado)
+      solicitud.id_estado = formulario.id_estado;
     else
       solicitud.id_estado = s.id_estado;
 

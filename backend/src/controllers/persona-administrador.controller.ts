@@ -117,8 +117,15 @@ export class PersonaAdministradorController {
       },
     },
   })
-  async findAdministradores( ): Promise<Persona[]> {
-    let admins = await this.personaRepository.find({where: {id_rol: 1}})
+  async findAdministradores(
+    @param.filter(Persona) filter?: Filter<Persona>
+  ): Promise<Persona[]> {
+    let admins = await this.personaRepository.find(filter? filter : {include: [
+      {relation: 'email'},
+      {relation: 'rol',},
+    ],
+      where: {id_rol: 1}, 
+    });
     return admins;
   }
 
@@ -136,13 +143,16 @@ export class PersonaAdministradorController {
   async findByIdAdmins(
     @param.path.string('id') id: string,
     //@param.filter(Persona, {exclude: 'where'}) filter?: FilterExcludingWhere<Persona>
-  ): Promise<Persona> {
-    let admin =  await this.personaRepository.findOne({where: {id: id, id_rol: 1}} );
-    if (admin)
+    @param.filter(Persona) filter?: Filter<Persona>
+    ): Promise<Persona> {
+      let admin =  await this.personaRepository.findById(id, filter? filter : {include: [
+        {relation: 'email'},
+        {relation: 'rol',},
+      ],
+        where: {id_rol: 3}, 
+      });
       return admin;
-    else
-      throw new HttpErrors[401]("Error encontrando al administrador.")
-  }
+    }
 
 
   //@authenticate("admin")
@@ -160,8 +170,9 @@ export class PersonaAdministradorController {
       },
     })
     formulario: FormularioRegistro,
-  ): Promise <void>{
-    let admin = await this.personaRepository.findById(id);
+    @param.filter(Persona) filter?: Filter<Persona>
+  ): Promise<void> {
+    let admin = await this.personaRepository.findById(id, filter? filter : {where: {id_rol: 1}});
     let persona: Persona = new Persona();
     persona.id = admin.id;
     if (formulario.tipoId)
@@ -182,10 +193,7 @@ export class PersonaAdministradorController {
       persona.celular = admin.celular;
     if (formulario.email)
       persona.id_email = admin.id_email;
-    if (admin.id_rol == 1)
-      await this.personaRepository.updateById(id, persona);
-    else
-      throw new HttpErrors[401]("El ID no corresponde a un administrador.")
+    await this.personaRepository.updateById(id, persona);
   }
 
 

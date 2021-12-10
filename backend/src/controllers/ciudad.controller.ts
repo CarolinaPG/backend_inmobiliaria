@@ -1,4 +1,3 @@
-import { authenticate } from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -17,20 +16,14 @@ import {
   del,
   requestBody,
   response,
-  HttpErrors,
 } from '@loopback/rest';
 import {Ciudad} from '../models';
-import {CiudadRepository, DepartamentoRepository} from '../repositories';
+import {CiudadRepository} from '../repositories';
 
-//@authenticate("admin")
 export class CiudadController {
   constructor(
     @repository(CiudadRepository)
     public ciudadRepository : CiudadRepository,
-
-    @repository(DepartamentoRepository)
-    public departamentoRepository : DepartamentoRepository,
-
   ) {}
 
   @post('/ciudades')
@@ -51,16 +44,7 @@ export class CiudadController {
     })
     ciudad: Ciudad,
   ): Promise<Ciudad> {
-    if(ciudad.id_depa){
-      let depa = await this.departamentoRepository.findById(ciudad.id_depa);
-      if(depa){
-        return this.ciudadRepository.create(ciudad);
-      } else {
-        throw new HttpErrors[401]("Primero debe registrar el departamento antes de registrar la ciudad.")
-      }
-    } else {
-      throw new HttpErrors[401]("Debe agregar el departamento.")
-    }
+    return this.ciudadRepository.create(ciudad);
   }
 
   @get('/ciudades/count')
@@ -89,7 +73,9 @@ export class CiudadController {
   async find(
     @param.filter(Ciudad) filter?: Filter<Ciudad>,
   ): Promise<Ciudad[]> {
-    return this.ciudadRepository.find(filter);
+    return this.ciudadRepository.find(filter? filter : {include: [
+      {relation: 'depa'},
+    ]});
   }
 
   @patch('/ciudades')
@@ -122,10 +108,11 @@ export class CiudadController {
   })
   async findById(
     @param.path.number('id') id: number,
-    //@param.filter(Ciudad, {exclude: 'where'}) filter?: FilterExcludingWhere<Ciudad>
+    @param.filter(Ciudad, {exclude: 'where'}) filter?: FilterExcludingWhere<Ciudad>
   ): Promise<Ciudad> {
-    return this.ciudadRepository.findById(id);
-    //return this.ciudadRepository.findById(id, filter);
+    return this.ciudadRepository.findById(id, filter ? filter: {include: [
+      {relation: 'depa'},
+    ]});
   }
 
   @patch('/ciudades/{id}')
@@ -143,16 +130,7 @@ export class CiudadController {
     })
     ciudad: Ciudad,
   ): Promise<void> {
-    if(ciudad.id_depa){
-      let depa = await this.departamentoRepository.findById(ciudad.id_depa);
-      if(depa){
-        await this.ciudadRepository.updateById(id, ciudad);
-      } else {
-        throw new HttpErrors[401]("El departamento no ha sido registrado aún. Primero registre el departamento.")
-      }
-    } else {
-      await this.ciudadRepository.updateById(id, ciudad);
-    }
+    await this.ciudadRepository.updateById(id, ciudad);
   }
 
   @put('/ciudades/{id}')
