@@ -1,75 +1,51 @@
-# backend-inmobiliaria
+# 1. Correr el servicio para el envío de Emails #
 
-This application is generated using [LoopBack 4 CLI](https://loopback.io/doc/en/lb4/Command-line-interface.html) with the
-[initial project layout](https://loopback.io/doc/en/lb4/Loopback-application-layout.html).
+Primero se debe tener instalado python3 y pip para gestionar la instalación del módulo flask
 
-## Install dependencies
+> sudo apt-get install pip
 
-By default, dependencies were installed when this application was generated.
-Whenever dependencies in `package.json` are changed, run the following command:
+> sudo apt install python3-virtualenv
 
-```sh
-npm install
-```
+> pip install -U flask
 
-To only install resolved dependencies in `package-lock.json`:
+> pip install -U sendgrid
 
-```sh
-npm ci
-```
+Ahora si se puede lanzar el servicio de enviar email con python y sendgrid. Falta revisar el servicio de enviar SMS (aún no implementado). Se ejecuta el archivo enviosSmsEmail.py desde Spyder y se deja corriendo el servicio:
 
-## Run the application
+![servicio de Python](../servicioPython.png)
 
-```sh
-npm start
-```
 
-You can also run `node .` to skip the build step.
+# 2. Verificar que el Cluster de MongoDB está funcionando #
 
-Open http://127.0.0.1:3000 in your browser.
+Debes crear un cluster en MongoDB Atlas y debes instalar MongoDB Compass para verificar la conexión.
 
-## Rebuild the project
+Cuando has creado tu usuario y contraseña para acceder al cluster debes agregar la siguiente línea de código en MongoDB para acceder a la conexión. Ten en cuenta que debes cambiar *user* por tu usuario y *password* por la contraseña del usuario.
 
-To incrementally build the project:
+> mongodb+srv://user:password@cluster0.suwl6.mongodb.net/test
 
-```sh
-npm run build
-```
+Cuando ya hayas podido ingresar y comprobar la conexión debes agregar la línea de url en los siguientes ficheros:
+	dist/datasources/mongodb.datasource.js
 
-To force a full build by cleaning up cached artifacts:
+	src/datasources/mongodb.datasource.ts
 
-```sh
-npm run rebuild
-```
+	~~~
+	url: 'mongodb+srv://*usuario*:*password*@*lo que te muestra mongodb atlas*?retryWrites=true&w=majority',
+	~~~
 
-## Fix code style and formatting issues
+**Nota: ** Debes cambiar el usuario, la contraseña y el nombre de cluster y base de datos
 
-```sh
-npm run lint
-```
 
-To automatically fix such issues:
 
-```sh
-npm run lint:fix
-```
+# 3. Preparar y lanzar el servidor del backend #
 
-## Other useful commands
+> npm install
 
-- `npm run migrate`: Migrate database schemas for models
-- `npm run openapi-spec`: Generate OpenAPI spec into a file
-- `npm run docker:build`: Build a Docker image for this application
-- `npm run docker:run`: Run this application inside a Docker container
+Si presenta problemas con las versiones, puede intentar:
 
-## Tests
+> npm install --force
 
-```sh
-npm test
-```
+> npm start
 
-## What's next
+![Run backend](./runbackend.png)
 
-Please check out [LoopBack 4 documentation](https://loopback.io/doc/en/lb4/) to
-understand how you can continue to add features to this application.
-
-[![LoopBack](https://github.com/loopbackio/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png)](http://loopback.io/)
+ 
